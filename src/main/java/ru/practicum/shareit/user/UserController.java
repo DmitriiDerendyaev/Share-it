@@ -28,7 +28,7 @@ public class UserController {
     private final UserMapper userMapper;
 
     @PostMapping()
-    public UserDto create(@RequestBody UserDto userDto) {
+    public UserDto create(@Valid @RequestBody UserDto userDto) {
         log.info("Create new user: {}", userDto);
 
         return userService.create(userMapper.toUser(userDto));

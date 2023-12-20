@@ -14,13 +14,10 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class User {
 
-    @NotBlank
     private Long id;
 
-    @NotBlank
     private String name;
 
     @Email
-    @NotBlank
     private String email;
 }

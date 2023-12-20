@@ -22,9 +22,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto create(User user) {
-        if (user.getId() != 0) {
-            log.warn("id must be 0");
-            throw new ValidException("id must be 0");
+        if (user.getId() != null) {
+            log.warn("id must be null");
+            throw new ValidException("id must be null");
         }
 
         if (user.getEmail() == null) {
@@ -36,7 +36,9 @@ public class UserServiceImpl implements UserService {
             throw new ExistException("User with email is exist");
         }
 
-        return userMapper.toDto(userRepository.create(user));
+        User newUser = userRepository.create(user);
+
+        return userMapper.toDto(newUser);
     }
 
     @Override

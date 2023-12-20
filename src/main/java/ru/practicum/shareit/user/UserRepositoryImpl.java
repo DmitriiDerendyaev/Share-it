@@ -11,12 +11,13 @@ import java.util.Objects;
 public class UserRepositoryImpl implements UserRepository {
 
     private final HashMap<Long, User> users = new HashMap<>();
-    private Long id;
+    private Long id = 0L;
 
     @Override
     public User create(User user) {
         user.setId(incrementId());
-        return users.put(user.getId(), user);
+        users.put(user.getId(), user);
+        return user;
     }
 
     @Override
