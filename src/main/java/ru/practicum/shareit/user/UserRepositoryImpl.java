@@ -1,10 +1,13 @@
 package ru.practicum.shareit.user;
 
+import org.springframework.stereotype.Repository;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+@Repository
 public class UserRepositoryImpl implements UserRepository {
 
     private final HashMap<Long, User> users = new HashMap<>();

@@ -67,18 +67,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getById(long userId) {
+    public User getById(Long userId) {
         checkUserExists(userId);
         return userRepository.getById(userId);
     }
 
     @Override
-    public void deleteById(long userId) {
+    public User deleteById(Long userId) {
         checkUserExists(userId);
-        userRepository.deleteById(userId);
+
+        return userRepository.deleteById(userId);
     }
 
-    public void checkUserExists(long userId) {
+    public void checkUserExists(Long userId) {
         if (!userRepository.containsUser(userId)) {
             log.warn("This user is not exist");
             throw new ObjectNotFoundException("This user is not exist");

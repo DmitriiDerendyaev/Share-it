@@ -11,7 +11,7 @@ public interface UserService {
 
     public List<UserDto> getAll();
 
-    public User getById(long userId);
+    public User getById(Long userId);
 
-    public void deleteById(long id);
+    public User deleteById(Long id);
 }
