@@ -38,14 +38,14 @@ public class UserController {
     public UserDto getById(@PathVariable Long userId) {
         log.info("Get user by ID={}", userId);
 
-        return null;
+        return userMapper.toDto(userService.getById(userId));
     }
 
     @GetMapping()
     public List<UserDto> getAll() {
         log.info("Get all users");
 
-        return null;
+        return userService.getAll();
     }
 
     @PatchMapping("/{userId}")
