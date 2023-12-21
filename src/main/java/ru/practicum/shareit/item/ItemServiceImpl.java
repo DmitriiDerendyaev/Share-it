@@ -11,6 +11,7 @@ import ru.practicum.shareit.user.UserRepository;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -59,7 +60,7 @@ public class ItemServiceImpl implements ItemService {
             throw new ObjectNotFoundException("This item not found");
         }
 
-        if (itemRepository.findById(itemId).getOwner().getId() != userId) {
+        if (!Objects.equals(itemRepository.findById(itemId).getOwner().getId(), userId)) {
             throw new ObjectNotFoundException("Items can changes only owners");
         }
 
