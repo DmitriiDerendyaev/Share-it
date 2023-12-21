@@ -54,7 +54,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public boolean existByEmailAndId(User user, Long id) {
         return users.values().stream()
-                .anyMatch(x -> x.getEmail().equals(user.getEmail()) && Objects.equals(x.getId(), id));
+                .anyMatch(x -> x.getEmail().equals(user.getEmail()) && !Objects.equals(x.getId(), id));
     }
 
     private Long incrementId() {
