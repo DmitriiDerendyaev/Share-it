@@ -1,12 +1,23 @@
 package ru.practicum.shareit.request;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * TODO Sprint add-item-requests.
  */
+
+@Slf4j
 @RestController
 @RequestMapping(path = "/requests")
+@RequiredArgsConstructor
 public class ItemRequestController {
+
+    private final ItemRequestService itemRequestService;
+
+    @GetMapping("/{requestId}")
+    public ItemRequest findRequestById(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long requestId) {
+        return itemRequestService.findRequestById(userId, requestId);
+    }
 }
