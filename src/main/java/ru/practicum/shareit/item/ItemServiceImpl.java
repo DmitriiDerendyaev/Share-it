@@ -26,7 +26,9 @@ public class ItemServiceImpl implements ItemService {
     private final ItemMapper itemMapper;
 
     @Override
-    public ItemDto create(Long userId, Item item) {
+    public ItemDto create(Long userId, ItemDto itemDto) {
+        Item item = itemMapper.toItem(itemDto, userId);
+
         checkUser(userId);
 
         if (item.getAvailable() == null) {
@@ -53,7 +55,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto update(Long userId, Item item, Long itemId) {
+    public ItemDto update(Long userId, ItemDto itemDto, Long itemId) {
+        Item item = itemMapper.toItem(itemDto, userId);
+
         checkUser(userId);
 
         if (!itemRepository.containsItem(itemId)) {

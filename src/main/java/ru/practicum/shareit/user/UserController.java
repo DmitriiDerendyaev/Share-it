@@ -17,15 +17,7 @@ import java.util.List;
 @RequestMapping(path = "/users")
 public class UserController {
 
-    // create
-    // getById
-    // getAll
-    // update
-    // delete
-
     private final UserService userService;
-
-    private final UserMapper userMapper;
 
     @PostMapping()
     public UserDto create(@Valid @RequestBody UserDto userDto) {
