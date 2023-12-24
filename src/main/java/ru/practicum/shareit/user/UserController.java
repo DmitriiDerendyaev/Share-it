@@ -31,14 +31,21 @@ public class UserController {
     public UserDto create(@Valid @RequestBody UserDto userDto) {
         log.info("Create new user: {}", userDto);
 
-        return userService.create(userMapper.toUser(userDto));
+        return userService.create(userDto);
+    }
+
+    @PatchMapping("/{userId}")
+    public UserDto updateById(@Valid @RequestBody UserDto userDto, @PathVariable Long userId) {
+        log.info("Update user by ID={}", userId);
+
+        return userService.update(userDto, userId);
     }
 
     @GetMapping("/{userId}")
     public UserDto getById(@PathVariable Long userId) {
         log.info("Get user by ID={}", userId);
 
-        return userMapper.toDto(userService.getById(userId));
+        return userService.getById(userId);
     }
 
     @GetMapping()
@@ -46,13 +53,6 @@ public class UserController {
         log.info("Get all users");
 
         return userService.getAll();
-    }
-
-    @PatchMapping("/{userId}")
-    public UserDto updateById(@Valid @RequestBody UserDto userDto, @PathVariable Long userId) {
-        log.info("Update user by ID={}", userId);
-
-        return userService.update(userMapper.toUser(userDto), userId);
     }
 
     @DeleteMapping("/{userId}")

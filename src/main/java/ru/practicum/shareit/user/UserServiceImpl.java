@@ -21,7 +21,9 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public UserDto create(User user) {
+    public UserDto create(UserDto userDto) {
+        User user = userMapper.toUser(userDto);
+
         if (user.getId() != null) {
             log.warn("id must be null");
             throw new ValidException("id must be null");
@@ -42,7 +44,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto update(User user, Long userId) {
+    public UserDto update(UserDto userDto, Long userId) {
+        User user = userMapper.toUser(userDto);
         checkUserExists(userId);
         if (userRepository.existByEmailAndId(user, userId)) {
             log.warn("User with email is exist");
@@ -69,9 +72,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getById(Long userId) {
+    public UserDto getById(Long userId) {
         checkUserExists(userId);
-        return userRepository.getById(userId);
+        return userMapper.toDto(userRepository.getById(userId));
     }
 
     @Override
