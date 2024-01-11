@@ -9,6 +9,7 @@ import ru.practicum.shareit.exception.ValidException;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,7 +39,7 @@ public class UserServiceImpl implements UserService {
             throw new ExistException("User with email is exist");
         }
 
-        User newUser = userRepository.create(user);
+        User newUser = userRepository.save(user);
 
         return userMapper.toDto(newUser);
     }
@@ -47,26 +48,22 @@ public class UserServiceImpl implements UserService {
     public UserDto update(UserDto userDto, Long userId) {
         User user = userMapper.toUser(userDto);
         checkUserExists(userId);
-        if (userRepository.existByEmailAndId(user, userId)) {
-            log.warn("User with email is exist");
-            throw new ExistException("User with email is exist");
+
+        Optional<User> existingUser = userRepository.findById(userId);
+        if (existingUser.isPresent() && !existingUser.get().getEmail().equals(user.getEmail()) &&
+                userRepository.existsByEmail(user.getEmail())) {
+            log.warn("User with email already exists");
+            throw new ExistException("User with email already exists");
         }
 
-        User saveUser = userRepository.getById(userId);
-        if (user.getEmail() != null) {
-            saveUser.setEmail(user.getEmail());
-        }
+        User savedUser = userRepository.save(user);
 
-        if (user.getName() != null) {
-            saveUser.setName(user.getName());
-        }
-
-        return userMapper.toDto(userRepository.update(saveUser, userId));
+        return userMapper.toDto(savedUser);
     }
 
     @Override
     public List<UserDto> getAll() {
-        return userRepository.getAll().stream()
+        return userRepository.findAll().stream()
                 .map(userMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -74,18 +71,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getById(Long userId) {
         checkUserExists(userId);
-        return userMapper.toDto(userRepository.getById(userId));
+        return userMapper.toDto(userRepository.findById(userId)
+                .orElseThrow(() -> new ObjectNotFoundException("User not found")));
     }
 
     @Override
     public User deleteById(Long userId) {
         checkUserExists(userId);
 
-        return userRepository.deleteById(userId);
+        userRepository.deleteById(userId);
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ObjectNotFoundException("User not found"));
     }
 
     public void checkUserExists(Long userId) {
-        if (!userRepository.containsUser(userId)) {
+        if (!userRepository.existsById(userId)) {
             log.warn("This user is not exist");
             throw new ObjectNotFoundException("This user is not exist");
         }
