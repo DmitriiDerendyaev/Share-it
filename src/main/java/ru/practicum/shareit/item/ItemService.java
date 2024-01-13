@@ -21,5 +21,5 @@ public interface ItemService {
 
     public List<ItemDto> findItems(String text);
 
-    Comments addComment(Long userId, Long itemId, CommentDto commentDto);
+    CommentDto addComment(Long userId, Long itemId, CommentDto commentDto);
 }

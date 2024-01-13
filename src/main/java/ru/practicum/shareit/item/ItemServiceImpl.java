@@ -146,12 +146,13 @@ public class ItemServiceImpl implements ItemService {
             return Collections.emptyList();
         }
         return itemRepository.search(text).stream()
+                .filter(Item::getAvailable)
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Comments addComment(Long userId, Long itemId, CommentDto commentDto) {
+    public CommentDto addComment(Long userId, Long itemId, CommentDto commentDto) {
         if (commentDto.getText().isBlank()) {
             throw new ValidException("This field can't be empty, write the text");
         }
@@ -176,7 +177,7 @@ public class ItemServiceImpl implements ItemService {
         comments.setItem(itemRepository.getReferenceById(itemId));
         comments.setCreated(LocalDateTime.now());
 
-        return commentRepository.save(comments);
+        return itemMapper.toCommentDto(commentRepository.save(comments));
     }
 
     public void checkUser(Long userId) {

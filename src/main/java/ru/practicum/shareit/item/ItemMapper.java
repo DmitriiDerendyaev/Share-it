@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.dto.BookingDto2;
 import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.comment.model.Comments;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoForOwners;
 import ru.practicum.shareit.item.model.Item;
@@ -71,6 +72,16 @@ public class ItemMapper {
                                 .build() : null
                 )
                 .comments(comments)
+                .build();
+    }
+
+    public CommentDto toCommentDto(Comments comments) {
+        return CommentDto.builder()
+                .id(comments.getId())
+                .author(comments.getAuthor().getId())
+                .authorName(comments.getAuthor().getName())
+                .text(comments.getText())
+                .created(comments.getCreated())
                 .build();
     }
 }

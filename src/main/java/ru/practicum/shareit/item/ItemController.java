@@ -3,9 +3,11 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoForOwners;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -23,7 +25,7 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemDto create(@RequestHeader(userIDHead) Long userId, @RequestBody ItemDto itemDto) {
+    public ItemDto create(@RequestHeader(userIDHead) Long userId, @Valid @RequestBody ItemDto itemDto) {
         log.info("Create item");
         return itemService.create(userId, itemDto);
     }
@@ -51,5 +53,11 @@ public class ItemController {
     public List<ItemDto> findItems(@RequestHeader(userIDHead) Long userId, @RequestParam(defaultValue = "Write the text") String text) {
         log.info("Seach items by request with available status");
         return itemService.findItems(text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    @ResponseBody
+    public CommentDto addComment(@RequestHeader(userIDHead) Long userId, @PathVariable Long itemId, @RequestBody CommentDto commentDto) {
+        return itemService.addComment(userId, itemId, commentDto);
     }
 }
