@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item;
 
 import ru.practicum.shareit.comment.dto.CommentDto;
-import ru.practicum.shareit.comment.model.Comments;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoForOwners;
 
@@ -11,9 +10,6 @@ public interface ItemService {
     public ItemDto create(Long userId, ItemDto itemDto);
 
     public ItemDto update(Long userId, ItemDto itemDto, Long itemId);
-
-//    @Deprecated
-//    public ItemDto findById(Long itemId);
 
     ItemDtoForOwners findById(Long itemId, Long userId);
 
