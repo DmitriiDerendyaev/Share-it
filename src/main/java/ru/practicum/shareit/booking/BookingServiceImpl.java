@@ -58,7 +58,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidException("Item is not available");
         }
 
-        if (itemSave.getOwner().getId() == userId) {
+        if (itemSave.getOwner().getId().equals(userId)) {
 
             throw new ObjectNotFoundException("You can't send request for your item");
         }
@@ -97,7 +97,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ObjectNotFoundException("User not found");
         }
 
-        if (saveBooking.getItem().getOwner().getId() != userId) {
+        if (!saveBooking.getItem().getOwner().getId().equals(userId)) {
             log.warn("Change status can only owner");
             throw new ObjectNotFoundException("Change status can only owner");
         }
