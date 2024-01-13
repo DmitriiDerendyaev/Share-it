@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
 
-    public ItemRequest findRequestById(long userId, long requestId) {
+    public ItemRequest findRequestById(Long userId, Long requestId) {
         return new ItemRequest();
     }
 }
