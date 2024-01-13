@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.ExistException;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.ValidException;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -22,6 +24,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
+    @Transactional
     public UserDto create(UserDto userDto) {
         User user = userMapper.toUser(userDto);
 
@@ -30,35 +33,28 @@ public class UserServiceImpl implements UserService {
             throw new ValidException("id must be null");
         }
 
-        if (user.getEmail() == null) {
-            throw new ValidException("Email can't by empty");
+        try {
+            return userMapper.toDto(userRepository.save(user));
+        } catch (Exception e) {
+            throw new ExistException("Email can't be the same");
         }
-
-        if (userRepository.existsByEmail(user.getEmail())) {
-            log.warn("User with email is exist");
-            throw new ExistException("User with email is exist");
-        }
-
-        User newUser = userRepository.save(user);
-
-        return userMapper.toDto(newUser);
     }
 
     @Override
+    @Transactional
     public UserDto update(UserDto userDto, Long userId) {
-        User user = userMapper.toUser(userDto);
         checkUserExists(userId);
 
-        Optional<User> existingUser = userRepository.findById(userId);
-        if (existingUser.isPresent() && !existingUser.get().getEmail().equals(user.getEmail()) &&
-                userRepository.existsByEmail(user.getEmail())) {
-            log.warn("User with email already exists");
-            throw new ExistException("User with email already exists");
+        User saveUser = userRepository.findById(userId).orElseThrow();
+        if (userDto.getEmail() != null) {
+            saveUser.setEmail(userDto.getEmail());
         }
 
-        User savedUser = userRepository.save(user);
+        if (userDto.getName() != null) {
+            saveUser.setName(userDto.getName());
+        }
 
-        return userMapper.toDto(savedUser);
+        return userMapper.toDto(userRepository.save(saveUser));
     }
 
     @Override
