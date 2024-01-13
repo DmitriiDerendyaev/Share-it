@@ -134,8 +134,8 @@ public class BookingServiceImpl implements BookingService {
 
         Booking saveBooking = bookingRepository.findById(bookingId).orElseThrow();
 
-        if (saveBooking.getBooker().getId() != userId
-                && (saveBooking.getItem().getOwner().getId() != userId)) {
+        if (!saveBooking.getBooker().getId().equals(userId)
+                && (!saveBooking.getItem().getOwner().getId().equals(userId))) {
             throw new ObjectNotFoundException("Get information about booking can owner item or booker only");
         }
 
