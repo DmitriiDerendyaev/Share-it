@@ -9,19 +9,17 @@ import ru.practicum.shareit.comment.model.Comments;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoForOwners;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.request.ItemRequestService;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class ItemMapper {
-
-    private final UserService userService;
-
-    private final ItemRequestService itemRequestService;
 
     private final UserMapper userMapper;
 
@@ -35,14 +33,14 @@ public class ItemMapper {
                 .build();
     }
 
-    public Item toItem(ItemDto itemDto, Long userId) {
+    public Item toItem(ItemDto itemDto, ItemRequest itemRequest, UserDto userDto) {
         return Item.builder()
                 .id(itemDto.getId())
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())
-                .request(itemDto.getRequest() != null ? itemRequestService.findRequestById(itemDto.getRequest(), userId) : null)
-                .owner(userService.getById(userId) != null ? userMapper.toUser(userService.getById(userId)) : null)
+                .request(itemDto.getRequest() != null ? itemRequest : null)
+                .owner(userDto != null ? userMapper.toUser(userDto) : null)
                 .build();
     }
 

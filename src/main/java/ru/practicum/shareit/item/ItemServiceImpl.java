@@ -14,7 +14,11 @@ import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoForOwners;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.ItemRequestService;
 import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -38,12 +42,18 @@ public class ItemServiceImpl implements ItemService {
 
     private final CommentRepository commentRepository;
 
+    private final ItemRequestService itemRequestService;
+
+    private final UserService userService;
+
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) {
         Objects.requireNonNull(userId, "userId must not be null");
         Objects.requireNonNull(itemDto, "itemDto must not be null");
 
-        Item item = itemMapper.toItem(itemDto, userId);
+        ItemRequest itemRequest = itemRequestService.findRequestById(itemDto.getRequest(), userId);
+        UserDto userDto = userService.getById(userId);
+        Item item = itemMapper.toItem(itemDto, itemRequest, userDto);
         checkUser(userId);
 
         if (item.getAvailable() == null) {
@@ -75,7 +85,9 @@ public class ItemServiceImpl implements ItemService {
         Objects.requireNonNull(itemDto, "itemDto must not be null");
         Objects.requireNonNull(itemId, "itemId must not be null");
 
-        Item item = itemMapper.toItem(itemDto, userId);
+        ItemRequest itemRequest = itemRequestService.findRequestById(itemDto.getRequest(), userId);
+        UserDto userDto = userService.getById(userId);
+        Item item = itemMapper.toItem(itemDto, itemRequest, userDto);
 
         checkUser(userId);
 
