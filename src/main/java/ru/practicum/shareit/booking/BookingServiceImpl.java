@@ -4,7 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingItemDto;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.ValidException;
 import ru.practicum.shareit.item.ItemRepository;
@@ -29,15 +29,15 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
 
     @Transactional(rollbackFor = Exception.class)
-    public Booking createBooking(Long userId, BookingDto bookingDto) {
+    public Booking createBooking(Long userId, BookingItemDto bookingItemDto) {
 
-        LocalDateTime saveStartTime = bookingDto.getStart();
+        LocalDateTime saveStartTime = bookingItemDto.getStart();
 
-        if (saveStartTime.isAfter(bookingDto.getEnd())) {
+        if (saveStartTime.isAfter(bookingItemDto.getEnd())) {
             throw new ValidException("Data start can't be later then end");
         }
 
-        if (saveStartTime.isEqual(bookingDto.getEnd())) {
+        if (saveStartTime.isEqual(bookingItemDto.getEnd())) {
             throw new ValidException("Dates start and end can be different");
         }
 
@@ -46,7 +46,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ObjectNotFoundException("This user is not exist");
         }
 
-        long saveItemId = bookingDto.getItemId();
+        long saveItemId = bookingItemDto.getItemId();
 
         if (itemRepository.findById(saveItemId).isEmpty()) {
             throw new ObjectNotFoundException("Item not found");
@@ -64,10 +64,10 @@ public class BookingServiceImpl implements BookingService {
         }
 
         Booking saveBooking = new Booking();
-        saveBooking.setId(bookingDto.getId());
-        saveBooking.setStart(bookingDto.getStart());
-        saveBooking.setEnd(bookingDto.getEnd());
-        saveBooking.setItem(itemRepository.findById(bookingDto.getItemId()).orElseThrow());
+        saveBooking.setId(bookingItemDto.getId());
+        saveBooking.setStart(bookingItemDto.getStart());
+        saveBooking.setEnd(bookingItemDto.getEnd());
+        saveBooking.setItem(itemRepository.findById(bookingItemDto.getItemId()).orElseThrow());
         saveBooking.setBooker(userRepository.findById(userId).orElseThrow());
         saveBooking.setStatus(BookingStatus.WAITING);
 

@@ -3,7 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.booking.dto.BookingDto2;
+import ru.practicum.shareit.booking.dto.BookingOwnerDto;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.model.Comments;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -55,7 +55,7 @@ public class ItemMapper {
                 .available(item.getAvailable())
                 .request(item.getRequest() != null ? item.getRequest().getId() : 0)
                 .lastBooking((lastBooking != null) && (item.getOwner().getId() == userId) ?
-                        BookingDto2.builder()
+                        BookingOwnerDto.builder()
                                 .id(lastBooking.getId())
                                 .start(lastBooking.getStart())
                                 .end(lastBooking.getEnd())
@@ -64,7 +64,7 @@ public class ItemMapper {
                 )
 
                 .nextBooking((nextBooking != null) && (item.getOwner().getId() == userId) ?
-                        BookingDto2.builder()
+                        BookingOwnerDto.builder()
                                 .id(nextBooking.getId())
                                 .start(nextBooking.getStart())
                                 .end(nextBooking.getEnd())

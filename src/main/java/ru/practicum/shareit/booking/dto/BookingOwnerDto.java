@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class BookingDto2 {
+public class BookingOwnerDto {
 
     private Long id;
 
