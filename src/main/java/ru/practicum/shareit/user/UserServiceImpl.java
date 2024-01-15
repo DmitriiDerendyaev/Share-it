@@ -30,7 +30,6 @@ public class UserServiceImpl implements UserService {
         Objects.requireNonNull(userDto, "userDto must not be null");
 
         User user = userMapper.toUser(userDto);
-        Objects.requireNonNull(user.getId(), "id must be null");
 
         try {
             return userMapper.toDto(userRepository.save(user));
