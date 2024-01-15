@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -30,11 +31,13 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional(rollbackFor = Exception.class)
     public Booking createBooking(Long userId, BookingItemDto bookingItemDto) {
+        Objects.requireNonNull(userId, "userId mustn't be null");
+        Objects.requireNonNull(bookingItemDto, "bookingItemDto mustn't be null");
 
         LocalDateTime saveStartTime = bookingItemDto.getStart();
 
         if (saveStartTime.isAfter(bookingItemDto.getEnd())) {
-            throw new ValidException("Data start can't be later then end");
+            throw new ValidException("Data start can't be later than end");
         }
 
         if (saveStartTime.isEqual(bookingItemDto.getEnd())) {
@@ -59,8 +62,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         if (itemSave.getOwner().getId().equals(userId)) {
-
-            throw new ObjectNotFoundException("You can't send request for your item");
+            throw new ObjectNotFoundException("You can't send a request for your item");
         }
 
         Booking saveBooking = new Booking();
@@ -76,6 +78,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     public Booking checkRequest(Long userId, Long bookingId, String approved) {
+        Objects.requireNonNull(userId, "userId must not be null");
+        Objects.requireNonNull(bookingId, "bookingId must not be null");
+        Objects.requireNonNull(approved, "approved must not be null");
 
         Booking saveBooking = bookingRepository.findById(bookingId).orElseThrow();
         saveBooking.setBooker(userRepository.getReferenceById(saveBooking.getBooker().getId()));
@@ -83,10 +88,6 @@ public class BookingServiceImpl implements BookingService {
 
         if (approved.isBlank()) {
             throw new ValidException("approved must be true/false");
-        }
-
-        if (bookingId == 0) {
-            throw new ValidException("bookingId can't be null");
         }
 
         if (!bookingRepository.existsById(bookingId)) {
@@ -103,7 +104,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         if (saveBooking.getStatus().equals(BookingStatus.APPROVED)) {
-            throw new ValidException("This booking cheked");
+            throw new ValidException("This booking checked");
         }
 
         switch (approved) {
@@ -112,7 +113,6 @@ public class BookingServiceImpl implements BookingService {
                     saveBooking.setStatus(BookingStatus.WAITING);
                 }
                 saveBooking.setStatus(BookingStatus.APPROVED);
-
                 return saveBooking;
 
             case "false":
@@ -125,6 +125,9 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public Booking getBooking(Long userId, Long bookingId) {
+        Objects.requireNonNull(userId, "userId must not be null");
+        Objects.requireNonNull(bookingId, "bookingId must not be null");
+
         if (!userRepository.existsById(userId)) {
             throw new ObjectNotFoundException("User not found");
         }
@@ -143,6 +146,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public List<Booking> getBookingsByStatus(Long userId, String state) {
+        Objects.requireNonNull(userId, "userId must not be null");
+        Objects.requireNonNull(state, "state must not be null");
 
         if (!userRepository.existsById(userId)) {
             throw new ObjectNotFoundException("This user not exist");
@@ -153,6 +158,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public List<Booking> getUserBookings(Long ownerId, String state) {
+        Objects.requireNonNull(ownerId, "ownerId must not be null");
+        Objects.requireNonNull(state, "state must not be null");
 
         List<Item> itemByOwnerId = itemRepository.findByOwnerId(ownerId);
 
@@ -170,6 +177,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public List<Booking> checkState(List<Booking> saveBooking, String state) {
+        Objects.requireNonNull(saveBooking, "saveBooking must not be null");
+        Objects.requireNonNull(state, "state must not be null");
 
         switch (state) {
             case "ALL":

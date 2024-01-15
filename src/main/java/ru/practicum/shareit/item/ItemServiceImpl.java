@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -39,27 +40,29 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) {
-        Item item = itemMapper.toItem(itemDto, userId);
+        Objects.requireNonNull(userId, "userId must not be null");
+        Objects.requireNonNull(itemDto, "itemDto must not be null");
 
+        Item item = itemMapper.toItem(itemDto, userId);
         checkUser(userId);
 
         if (item.getAvailable() == null) {
-            log.warn("Available can't be empty");
+            log.error("Available can't be empty");
             throw new ValidException("Available can't be empty");
         }
 
         if (item.getName().isBlank()) {
-            log.warn("Name can't be empty");
+            log.error("Name can't be empty");
             throw new ValidException("Name can't be empty");
         }
 
         if (item.getDescription() == null) {
-            log.warn("Description can't be empty");
+            log.error("Description can't be empty");
             throw new ValidException("Description can't be empty");
         }
 
         if (!userRepository.existsById(userId)) {
-            log.warn("This user is not exist");
+            log.error("This user is not exist");
             throw new ObjectNotFoundException("This user is not exist");
         }
 
@@ -68,6 +71,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto update(Long userId, ItemDto itemDto, Long itemId) {
+        Objects.requireNonNull(userId, "userId must not be null");
+        Objects.requireNonNull(itemDto, "itemDto must not be null");
+        Objects.requireNonNull(itemId, "itemId must not be null");
+
         Item item = itemMapper.toItem(itemDto, userId);
 
         checkUser(userId);
@@ -98,6 +105,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDtoForOwners findById(Long itemId, Long userId) {
+        Objects.requireNonNull(itemId, "itemId must not be null");
+        Objects.requireNonNull(userId, "userId must not be null");
 
         if (!itemRepository.existsById(itemId)) {
             throw new ObjectNotFoundException("Item not found");
@@ -129,6 +138,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDtoForOwners> getItemsByUserId(Long userId) {
+        Objects.requireNonNull(userId, "userId must not be null");
+
         checkUser(userId);
 
         if (!userRepository.existsById(userId)) {
@@ -153,6 +164,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public CommentDto addComment(Long userId, Long itemId, CommentDto commentDto) {
+        Objects.requireNonNull(userId, "userId must not be null");
+        Objects.requireNonNull(itemId, "itemDto must not be null");
+        Objects.requireNonNull(commentDto, "commentDto must not be null");
+
         if (commentDto.getText().isBlank()) {
             throw new ValidException("This field can't be empty, write the text");
         }
@@ -181,6 +196,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public void checkUser(Long userId) {
+        Objects.requireNonNull(userId, "userId must not be null");
+
         if (userId == 0) {
             log.warn("User id can't be empty");
             throw new ValidException("User id can't be empty");

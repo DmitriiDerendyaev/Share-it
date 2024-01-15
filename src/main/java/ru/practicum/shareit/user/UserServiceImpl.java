@@ -10,6 +10,7 @@ import ru.practicum.shareit.exception.ValidException;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -26,12 +27,10 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto create(UserDto userDto) {
-        User user = userMapper.toUser(userDto);
+        Objects.requireNonNull(userDto, "userDto must not be null");
 
-        if (user.getId() != null) {
-            log.warn("id must be null");
-            throw new ValidException("id must be null");
-        }
+        User user = userMapper.toUser(userDto);
+        Objects.requireNonNull(user.getId(), "id must be null");
 
         try {
             return userMapper.toDto(userRepository.save(user));
@@ -43,9 +42,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto update(UserDto userDto, Long userId) {
+        Objects.requireNonNull(userDto, "userDto must not be null");
+        Objects.requireNonNull(userId, "userId must not be null");
+
         checkUserExists(userId);
 
         User saveUser = userRepository.findById(userId).orElseThrow();
+        Objects.requireNonNull(saveUser, "saveUser must not be null");
+
         if (userDto.getEmail() != null) {
             saveUser.setEmail(userDto.getEmail());
         }
@@ -66,6 +70,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getById(Long userId) {
+        Objects.requireNonNull(userId, "userId must not be null");
+
         checkUserExists(userId);
         return userMapper.toDto(userRepository.findById(userId)
                 .orElseThrow(() -> new ObjectNotFoundException("User not found")));
@@ -74,6 +80,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteById(Long userId) {
+        Objects.requireNonNull(userId, "userId must not be null");
+
         checkUserExists(userId);
 
         Optional<User> user = userRepository.findById(userId);
@@ -82,6 +90,8 @@ public class UserServiceImpl implements UserService {
     }
 
     public void checkUserExists(Long userId) {
+        Objects.requireNonNull(userId, "userId must not be null");
+
         if (!userRepository.existsById(userId)) {
             log.warn("This user is not exist");
             throw new ObjectNotFoundException("This user is not exist");
