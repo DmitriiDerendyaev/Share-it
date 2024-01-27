@@ -25,7 +25,7 @@ public class ItemRequestController {
     private final ItemRequestService itemRequestService;
 
     @GetMapping("/{requestId}")
-    public ItemRequest findRequestById(@RequestHeader(userIDHead) Long userId, @PathVariable Long requestId) {
+    public ItemRequestDto findRequestById(@RequestHeader(userIDHead) Long userId, @PathVariable Long requestId) {
         return itemRequestService.findRequestById(userId, requestId);
     }
 

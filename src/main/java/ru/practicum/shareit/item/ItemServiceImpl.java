@@ -51,7 +51,7 @@ public class ItemServiceImpl implements ItemService {
         Objects.requireNonNull(userId, "userId must not be null");
         Objects.requireNonNull(itemDto, "itemDto must not be null");
 
-        ItemRequest itemRequest = itemRequestService.findRequestById(itemDto.getRequest(), userId);
+        ItemRequest itemRequest = itemRequestService.findRequestByIdUtil(itemDto.getRequest(), userId);
         UserDto userDto = userService.getById(userId);
         Item item = itemMapper.toItem(itemDto, itemRequest, userDto);
         checkUser(userId);
@@ -85,7 +85,7 @@ public class ItemServiceImpl implements ItemService {
         Objects.requireNonNull(itemDto, "itemDto must not be null");
         Objects.requireNonNull(itemId, "itemId must not be null");
 
-        ItemRequest itemRequest = itemRequestService.findRequestById(itemDto.getRequest(), userId);
+        ItemRequest itemRequest = itemRequestService.findRequestByIdUtil(itemDto.getRequest(), userId);
         UserDto userDto = userService.getById(userId);
         Item item = itemMapper.toItem(itemDto, itemRequest, userDto);
 
