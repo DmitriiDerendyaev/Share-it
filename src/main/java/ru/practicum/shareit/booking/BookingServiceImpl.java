@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingItemDto;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
@@ -145,21 +146,23 @@ public class BookingServiceImpl implements BookingService {
         return saveBooking;
     }
 
-    public List<Booking> getBookingsByStatus(Long userId, String state) {
+    public List<Booking> getBookingsByStatus(Long userId, String state, Pageable pageable) {
         Objects.requireNonNull(userId, "userId must not be null");
         Objects.requireNonNull(state, "state must not be null");
+        Objects.requireNonNull(pageable, "pageable must not be null");
 
         if (!userRepository.existsById(userId)) {
             throw new ObjectNotFoundException("This user not exist");
         }
 
-        List<Booking> bookingsByUserId = bookingRepository.findByBookerId(userId);
+        List<Booking> bookingsByUserId = bookingRepository.findByBookerId(userId, pageable);
         return checkState(bookingsByUserId, state);
     }
 
-    public List<Booking> getUserBookings(Long ownerId, String state) {
+    public List<Booking> getUserBookings(Long ownerId, String state, Pageable pageable) {
         Objects.requireNonNull(ownerId, "ownerId must not be null");
         Objects.requireNonNull(state, "state must not be null");
+        Objects.requireNonNull(pageable, "pageable must not be null");
 
         List<Item> itemByOwnerId = itemRepository.findByOwnerId(ownerId);
 
@@ -170,9 +173,9 @@ public class BookingServiceImpl implements BookingService {
         List<Long> allItemsByUser = itemByOwnerId.stream()
                 .map(Item::getId)
                 .collect(Collectors.toList());
-        List<Booking> saveBooking = bookingRepository.findByItemIdIn(allItemsByUser);
+        List<Booking> baseBooking = bookingRepository.findByItemIdIn(allItemsByUser, pageable);
 
-        return checkState(saveBooking, state);
+        return checkState(baseBooking, state);
 
     }
 

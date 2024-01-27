@@ -2,10 +2,13 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingItemDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 /**
@@ -39,13 +42,20 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<Booking> getBookingsByStatus(@RequestHeader(userIDHead) Long userId, @RequestParam(defaultValue = "ALL") String state) {
+    public List<Booking> getBookingsByStatus(@RequestHeader(userIDHead) long userId, @RequestParam(defaultValue = "ALL") String state,
+                                             @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                             @RequestParam(defaultValue = "10") @Min(1) Integer size) {
+
         log.info("Get list of user's bookings");
-        return bookingService.getBookingsByStatus(userId, state);
+        return bookingService.getBookingsByStatus(userId, state,
+                PageRequest.of(from / size, size, Sort.by("start").descending()));
     }
 
     @GetMapping("/owner")
-    public List<Booking> getUserBookings(@RequestHeader(userIDHead) Long userId, @RequestParam(defaultValue = "ALL") String state) {
-        return bookingService.getUserBookings(userId, state);
+    public List<Booking> getUserBookings(@RequestHeader(userIDHead) long userId, @RequestParam(defaultValue = "ALL") String state,
+                                         @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                         @RequestParam(defaultValue = "10") @Min(1) Integer size) {
+
+        return bookingService.getUserBookings(userId, state, PageRequest.of(from / size, size, Sort.by("start").descending()));
     }
 }
