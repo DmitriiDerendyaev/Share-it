@@ -28,7 +28,7 @@ public class ItemRequestMapper {
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
-                .requestId(item.getRequest().getId())
+                .requestId(item.getRequestId().getId())
                 .available(item.getAvailable())
                 .build();
     }
