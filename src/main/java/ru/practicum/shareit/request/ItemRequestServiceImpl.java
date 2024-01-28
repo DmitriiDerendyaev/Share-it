@@ -30,7 +30,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     private final ItemRequestMapper itemRequestMapper;
 
-
+    @Deprecated
     public ItemRequest findRequestByIdUtil(Long userId, Long requestId) {
         return new ItemRequest();
     }

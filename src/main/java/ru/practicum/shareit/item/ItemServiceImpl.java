@@ -15,7 +15,10 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoForOwners;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.request.ItemRequestService;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -38,6 +41,8 @@ public class ItemServiceImpl implements ItemService {
 
     private final ItemMapper itemMapper;
 
+    private final UserMapper userMapper;
+
     private final BookingRepository bookingRepository;
 
     private final CommentRepository commentRepository;
@@ -46,15 +51,25 @@ public class ItemServiceImpl implements ItemService {
 
     private final UserService userService;
 
+    private final ItemRequestRepository itemRequestRepository;
+
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) {
         Objects.requireNonNull(userId, "userId must not be null");
         Objects.requireNonNull(itemDto, "itemDto must not be null");
 
-        ItemRequest itemRequest = itemRequestService.findRequestByIdUtil(itemDto.getRequest(), userId);
-        UserDto userDto = userService.getById(userId);
-        Item item = itemMapper.toItem(itemDto, itemRequest, userDto);
         checkUser(userId);
+        User user = userRepository.findById(userId).orElseThrow(() -> new ObjectNotFoundException("User not found"));
+
+        Item item = itemMapper.toItem(itemDto,  null, userMapper.toDto(user));
+        if (itemDto.getRequestId() != null) {
+            itemRequestRepository.findById(itemDto.getRequestId())
+                    .ifPresent(item::setRequestId);
+        }
+//        ItemRequest itemRequest = itemRequestService.findRequestByIdUtil(itemDto.getRequestId(), userId);
+//        UserDto userDto = userService.getById(userId);
+//        Item item = itemMapper.toItem(itemDto, itemRequest, userDto);
+
 
         if (item.getAvailable() == null) {
             log.error("Available can't be empty");
@@ -85,7 +100,7 @@ public class ItemServiceImpl implements ItemService {
         Objects.requireNonNull(itemDto, "itemDto must not be null");
         Objects.requireNonNull(itemId, "itemId must not be null");
 
-        ItemRequest itemRequest = itemRequestService.findRequestByIdUtil(itemDto.getRequest(), userId);
+        ItemRequest itemRequest = itemRequestService.findRequestByIdUtil(itemDto.getRequestId(), userId);
         UserDto userDto = userService.getById(userId);
         Item item = itemMapper.toItem(itemDto, itemRequest, userDto);
 

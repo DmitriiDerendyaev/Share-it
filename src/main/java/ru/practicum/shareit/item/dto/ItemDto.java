@@ -24,6 +24,6 @@ public class ItemDto {
     @NotNull
     private Boolean available;
 
-    private Long request;
+    private Long requestId;
 
 }
