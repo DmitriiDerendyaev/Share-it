@@ -26,27 +26,27 @@ public class ItemRequestController {
     private final String userIDHead = "X-Sharer-User-Id";
     private final ItemRequestService itemRequestService;
 
+    @GetMapping()
+    public List<ItemRequestDto> getRequest(@RequestHeader(userIDHead) Long userId) {
+
+        return itemRequestService.getRequest(userId);
+    }
+
+    @GetMapping("/all")
+    public List<ItemRequestDto> getAllRequests(@RequestHeader(userIDHead) Long userId,
+                                               @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                               @RequestParam(defaultValue = "10") @Min(1) Integer size) {
+
+        return itemRequestService.getAllRequests(userId, PageRequest.of(from / size, size, Sort.by("created").descending()));
+    }
+
     @GetMapping("/{requestId}")
     public ItemRequestDto findRequestById(@RequestHeader(userIDHead) Long userId, @PathVariable Long requestId) {
         return itemRequestService.findRequestById(userId, requestId);
     }
 
     @PostMapping
-    public ItemRequest addRequest(@RequestHeader(userIDHead) long userId, @RequestBody @Valid ItemRequestDto itemRequestDto) {
+    public ItemRequest addRequest(@RequestHeader(userIDHead) Long userId, @RequestBody @Valid ItemRequestDto itemRequestDto) {
         return itemRequestService.addRequest(userId, itemRequestDto);
-    }
-
-    @GetMapping
-    public List<ItemRequestDto> getRequest(@RequestHeader(userIDHead) long userId) {
-
-        return itemRequestService.getRequest(userId);
-    }
-
-    @GetMapping("/all")
-    public List<ItemRequestDto> getAllRequests(@RequestHeader(userIDHead) long userId,
-                                               @RequestParam(defaultValue = "0") @Min(0) Integer from,
-                                               @RequestParam(defaultValue = "10") @Min(1) Integer size) {
-
-        return itemRequestService.getAllRequests(userId, PageRequest.of(from / size, size, Sort.by("created").descending()));
     }
 }

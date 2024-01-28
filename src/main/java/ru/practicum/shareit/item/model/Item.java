@@ -40,5 +40,5 @@ public class Item {
 
     @ManyToOne
     @JoinColumn(name = "request_id")
-    private ItemRequest requestId;
+    private ItemRequest request;
 }
