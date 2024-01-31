@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ui.ModelExtensionsKt;
+import ru.practicum.shareit.exception.ExistException;
+import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.ArrayList;
@@ -28,6 +30,8 @@ public class UserServiceTest {
 
     @Mock
     private UserMapper userMapper;
+
+    UserMapper trueUserMapper = new UserMapper();
 
     public User userInput = User.builder()
             .id(null)
@@ -85,6 +89,15 @@ public class UserServiceTest {
     }
 
     @Test
+    public void createExistingUserTest() {
+        Mockito.when(userMapper.toUser(userInputDto)).thenReturn(userInput);
+        Mockito.when(userRepository.save(userInput)).thenThrow(new ExistException("Email can't be the same"));
+
+        Assertions.assertThrows(ExistException.class, () -> userService.create(userInputDto));
+    }
+
+
+    @Test
     public void updateUserTest() {
         Mockito.when(userRepository.existsById(1L)).thenReturn(true);
         Mockito.when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(userOutput));
@@ -94,6 +107,14 @@ public class UserServiceTest {
         UserDto userDtoResult = userService.update(newNameUser, 1L);
 
         Assertions.assertEquals(newNameUserDto, userDtoResult);
+    }
+
+    @Test
+    public void updateNonExistingUserTest() {
+        Long userId = 2L;
+        Mockito.when(userRepository.existsById(userId)).thenReturn(false);
+
+        Assertions.assertThrows(ObjectNotFoundException.class, () -> userService.update(newNameUser, userId));
     }
 
     @Test
@@ -122,6 +143,14 @@ public class UserServiceTest {
     }
 
     @Test
+    public void getNonExistingUserByIdTest() {
+        Long userId = 2L;
+        Mockito.when(userRepository.existsById(userId)).thenReturn(false);
+
+        Assertions.assertThrows(ObjectNotFoundException.class, () -> userService.getById(userId));
+    }
+
+    @Test
     public void deleteUserByIdTest() {
         Mockito.when(userRepository.existsById(1L)).thenReturn(true);
         Mockito.when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(userOutput));
@@ -134,6 +163,28 @@ public class UserServiceTest {
         Mockito.when(userRepository.findById(1L)).thenReturn(Optional.empty());
         Assertions.assertFalse(userRepository.findById(1L).isPresent(), "Пользователь должен быть удален");
 
+    }
+
+    @Test
+    public void deleteNonExistingUserByIdTest() {
+        Long userId = 2L;
+        Mockito.when(userRepository.existsById(userId)).thenReturn(false);
+
+        Assertions.assertThrows(ObjectNotFoundException.class, () -> userService.deleteById(userId));
+    }
+
+    @Test
+    public void toDtoTest() {
+        UserDto userDto = trueUserMapper.toDto(userInput);
+
+        Assertions.assertEquals(userInputDto, userDto);
+    }
+
+    @Test
+    public void toUserTest() {
+        User user = trueUserMapper.toUser(userInputDto);
+
+        Assertions.assertEquals(userInput, user);
     }
 }
 
