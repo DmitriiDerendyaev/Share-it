@@ -66,9 +66,6 @@ public class ItemServiceImpl implements ItemService {
             itemRequestRepository.findById(itemDto.getRequestId())
                     .ifPresent(item::setRequest);
         }
-//        ItemRequest itemRequest = itemRequestService.findRequestByIdUtil(itemDto.getRequestId(), userId);
-//        UserDto userDto = userService.getById(userId);
-//        Item item = itemMapper.toItem(itemDto, itemRequest, userDto);
 
 
         if (item.getAvailable() == null) {

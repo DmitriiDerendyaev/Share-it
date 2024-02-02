@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.Booking;
@@ -17,9 +18,15 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Builder
 public class ItemMapper {
 
     private final UserMapper userMapper;
+
+    public ItemMapper() {
+
+        userMapper = new UserMapper();
+    }
 
     public ItemDto toItemDto(Item item) {
         return ItemDto.builder()
