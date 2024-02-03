@@ -25,7 +25,7 @@ public class BookingController {
 
     private final BookingService bookingService;
 
-    @PostMapping
+    @PostMapping()
     public Booking createBooking(@RequestHeader(userIDHead) Long userId, @Valid @RequestBody BookingItemDto bookingItemDto) {
         log.info("Create booking");
         return bookingService.createBooking(userId, bookingItemDto);
