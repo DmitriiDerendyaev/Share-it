@@ -26,9 +26,8 @@ public class ItemRepositoryTest {
     public void searchTest() {
         String text = "name";
         User user2 = new User(0L, "name2", "mail2@mail.ru");
-        userRepository.save(user2);
-        user2.setId(3L);
-        Item item = new Item(0L, "name", "desc", true, user2, null);
+        User user = userRepository.save(user2);
+        Item item = new Item(0L, "name", "desc", true, user, null);
         itemRepository.save(item);
         List<Item> result = itemRepository.search(text);
 
