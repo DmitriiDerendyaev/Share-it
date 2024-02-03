@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
@@ -31,7 +30,6 @@ public class ItemRepositoryTest {
         user2.setId(3L);
         Item item = new Item(0L, "name", "desc", true, user2, null);
         itemRepository.save(item);
-        ItemDto itemDto = new ItemDto(1L, "name", "desc", true, 0L);
         List<Item> result = itemRepository.search(text);
 
         assertEquals(result.size(), 1);
