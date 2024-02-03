@@ -15,6 +15,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ru.practicum.shareit.booking.dto.BookingItemDto;
+import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 
@@ -23,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -101,9 +104,20 @@ public class BookingControllerTest {
         addBooking.setId(1L);
         addBooking.setStart(start());
         addBooking.setEnd(end());
+        addBooking.setItem(item());
+        addBooking.setBooker(user());
         addBooking.setStatus(BookingStatus.APPROVED);
         return objectMapper.writeValueAsString(addBooking);
+    }
 
+    private String createBookingDto() throws JsonProcessingException {
+        BookingItemDto addBooking = new BookingItemDto();
+        addBooking.setId(1L);
+        addBooking.setItemId(1L);
+        addBooking.setStart(start());
+        addBooking.setEnd(end());
+        addBooking.setStatus(BookingStatus.APPROVED);
+        return objectMapper.writeValueAsString(addBooking);
     }
 
     @Test
@@ -112,7 +126,7 @@ public class BookingControllerTest {
 
         mockMvc.perform(post("/bookings")
                         .header("X-Sharer-User-Id", booking().getBooker().getId())
-                        .content(addBooking())
+                        .content(createBookingDto())
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
