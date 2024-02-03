@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
@@ -39,6 +40,7 @@ class RequestRepositoryTest {
     public static final User booker = new User(2L, "userName2", "email2@mail.ru");
 
     @BeforeEach
+    @Transactional
     void setUp() {
         item.setOwner(userRepository.save(user));
         item1 = itemRepository.save(item);

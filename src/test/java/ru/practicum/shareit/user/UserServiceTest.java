@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.ExistException;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -77,6 +78,7 @@ public class UserServiceTest {
     public List<User> users = new ArrayList<>();
 
     @Test
+    @Transactional
     public void createUserTest() {
         Mockito.when(userMapper.toUser(userInputDto)).thenReturn(userInput);
         Mockito.when(userRepository.save(userInput)).thenReturn(userOutput);
@@ -88,6 +90,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @Transactional
     public void createExistingUserTest() {
         Mockito.when(userMapper.toUser(userInputDto)).thenReturn(userInput);
         Mockito.when(userRepository.save(userInput)).thenThrow(new ExistException("Email can't be the same"));
@@ -97,6 +100,7 @@ public class UserServiceTest {
 
 
     @Test
+    @Transactional
     public void updateUserTest() {
         Mockito.when(userRepository.existsById(1L)).thenReturn(true);
         Mockito.when(userRepository.findById(1L)).thenReturn(Optional.ofNullable(userOutput));

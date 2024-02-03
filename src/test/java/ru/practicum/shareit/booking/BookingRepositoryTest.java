@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
@@ -27,6 +28,7 @@ public class BookingRepositoryTest {
     private ItemRepository itemRepository;
 
     @Test
+    @Transactional
     public void findByBookerIdTest() {
 
         User user = new User(0L, "name", "mail@mail.ru");

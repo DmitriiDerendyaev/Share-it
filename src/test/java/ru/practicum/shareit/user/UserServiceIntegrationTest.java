@@ -26,6 +26,7 @@ public class UserServiceIntegrationTest {
     private UserMapper userMapper;
 
     @Test
+    @Transactional
     public void getUsersIntegrationTest() {
 
         User user = new User(0L, "userName", "user@user.ru");

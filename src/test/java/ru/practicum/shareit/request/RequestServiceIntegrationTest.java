@@ -45,6 +45,7 @@ public class RequestServiceIntegrationTest {
     private CommentRepository commentRepository;
 
     @Test
+    @Transactional
     public void getAllRequestsTest() {
         User user = new User(0L, "userName", "user@user.ru");
         User baseUser = userRepository.save(user);

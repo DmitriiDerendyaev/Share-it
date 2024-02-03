@@ -38,6 +38,7 @@ public class ItemIntegrationTest {
     private ItemServiceImpl itemService;
 
     @Test
+    @Transactional
     public void getItemsByUserId() {
 
         User user = new User(0L, "userName", "user@user.ru");

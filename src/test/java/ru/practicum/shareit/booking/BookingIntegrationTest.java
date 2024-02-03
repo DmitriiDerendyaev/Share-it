@@ -54,6 +54,7 @@ public class BookingIntegrationTest {
     }
 
     @Test
+    @Transactional
     public void getUserBookingsTest() {
         userRepository.deleteAll();
         User baseUser = userRepository.save(user());
