@@ -11,9 +11,11 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoForOwners;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.dto.UserDto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -86,5 +88,15 @@ public class ItemMapper {
                 .text(comments.getText())
                 .created(comments.getCreated())
                 .build();
+    }
+
+    public Comments toComment(CommentDto commentDto, User user, Item item) {
+        Comments comments = new Comments();
+        comments.setId(commentDto.getId());
+        comments.setText(commentDto.getText());
+        comments.setItem(item);
+        comments.setAuthor(user);
+        comments.setCreated(LocalDateTime.now());
+        return comments;
     }
 }

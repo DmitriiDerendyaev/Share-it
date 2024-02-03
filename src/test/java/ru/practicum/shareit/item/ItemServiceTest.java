@@ -120,11 +120,26 @@ public class ItemServiceTest {
             .email("nik@mail.ru")
             .build();
 
+    UserDto userDto = UserDto.builder()
+            .id(1L)
+            .name("Test User")
+            .email("test@example.com")
+            .build();
+
 
     Item item = Item.builder()
             .id(1L)
             .name("item")
             .description("description item")
+            .available(true)
+            .owner(user)
+            .request(null)
+            .build();
+
+    Item itemExtra = Item.builder()
+            .id(1L)
+            .name("item another")
+            .description("description item another")
             .available(true)
             .owner(user)
             .request(null)
@@ -140,7 +155,7 @@ public class ItemServiceTest {
 
     ItemMapper itemMapper1 = new ItemMapper();
     ItemDto itemDto2 = ItemDto.builder()
-            .id(1L)
+            .id(0L)
             .name("item")
             .description("description item")
             .available(true)
@@ -161,61 +176,40 @@ public class ItemServiceTest {
             .email("nik7@mail.ru")
             .build();
 
-//    @Test
-//    public void createWithNotNullIdTest() {
-//        ValidException exception = Assertions.assertThrows(
-//                ValidException.class,
-//                () -> itemService.create(user.getId(), itemDto2));
-//        Assertions.assertEquals("id must be 0", exception.getMessage());
-//    }
-//
-//    @Test
-//    public void createWithNotExistUserTest() {
-//        Mockito.when(userRepository.existsById(user.getId())).thenReturn(false);
-//        ObjectNotFoundException exception = Assertions.assertThrows(
-//                ObjectNotFoundException.class,
-//                () -> itemService.create(user.getId(), itemDtoInput));
-//        Assertions.assertEquals("This user not found", exception.getMessage());
-//    }
-//
-//    @Test
-//    public void updateTest() {
-//        Item item1 = Item.builder()
-//                .id(1L)
-//                .name("item1")
-//                .description("description item")
-//                .available(true)
-//                .owner(user)
-//                .request(null)
-//                .build();
-//
-//        when(itemRepository.existsById(1L)).thenReturn(true);
-//        when(itemRepository.getReferenceById(1L)).thenReturn(item);
-//
-//        when(itemRepository.save(item)).thenReturn(item1);
-//
-//        Item result = itemService.update(1L, item, 1L);
-//        Assertions.assertEquals(item1, result);
-//    }
+    ItemRequest itemRequest = ItemRequest.builder()
+            .id(1L)
+            .created(LocalDateTime.now())
+            .requester(user)
+            .description("some text")
+            .build();
 
-//    @Test
-//    public void updateItemNotExistTest() {
-//        Mockito.when(itemRepository.existsById(item.getId())).thenReturn(false);
-//        ObjectNotFoundException exception = Assertions.assertThrows(
-//                ObjectNotFoundException.class,
-//                () -> itemService.update(user.getId(), item, item.getId()));
-//        Assertions.assertEquals("This item not found", exception.getMessage());
-//    }
+    @Test
+    public void userUpdateTest() {
+        when(itemRequestService.findRequestByIdUtil(itemDtoInput.getRequestId(), 1L)).thenReturn(itemRequest);
+        when(userService.getById(1L)).thenReturn(userDto);
+        when(itemMapper.toItem(itemDtoInput, itemRequest, userDto)).thenReturn(item);
+        when(itemRepository.existsById(1L)).thenReturn(true);
+        when(itemRepository.findById(1L)).thenReturn(Optional.ofNullable(itemExtra));
 
-//    @Test
-//    public void updateItemIdSameUserIdTest() {
-//        Mockito.when(itemRepository.existsById(item.getId())).thenReturn(true);
-//        Mockito.when(itemRepository.getReferenceById(item.getId())).thenReturn(item);
-//        ObjectNotFoundException exception = Assertions.assertThrows(
-//                ObjectNotFoundException.class,
-//                () -> itemService.update(user2.getId(), item, item.getId()));
-//        Assertions.assertEquals("Items can changes only owners", exception.getMessage());
-//    }
+        when(itemRepository.save(any(Item.class))).thenReturn(itemExtra);
+        when(itemMapper.toItemDto(itemExtra)).thenReturn(itemDto2);
+
+        ItemDto result = itemService.update(1L, itemDto2, 1L);
+
+        Assertions.assertEquals(itemDto2.getId(), result.getId());
+        Assertions.assertEquals(itemDto2.getName(), result.getName());
+        Assertions.assertEquals(itemDto2.getDescription(), result.getDescription());
+    }
+
+
+    @Test
+    public void updateItemNotExistTest() {
+        Mockito.when(itemRepository.existsById(item.getId())).thenReturn(false);
+        ObjectNotFoundException exception = Assertions.assertThrows(
+                ObjectNotFoundException.class,
+                () -> itemService.update(user.getId(), itemDtoInput, item.getId()));
+        Assertions.assertEquals("This item not found", exception.getMessage());
+    }
 
     @Test
     public void findByIdItemNotExistTest() {
@@ -279,121 +273,114 @@ public class ItemServiceTest {
         Assertions.assertEquals("User not found", exception.getMessage());
     }
 
-//    @Test
-//    public void findItemsTest() {
-//        String text = "tekst";
-//        List<Item> items = List.of(item);
-//        Mockito.when(itemRepository.search(text)).thenReturn(items);
-//
-//        List<Item> result = itemService.findItems(text);
-//        Assertions.assertEquals(items, result);
-//    }
-//
-//    @Test
-//    public void findItemsTextIsBlankTest() {
-//        List<Item> items = itemService.findItems("");
-//        Assertions.assertEquals(items, Collections.emptyList());
-//    }
+    @Test
+    public void findItemsTest() {
+        String text = "tekst";
+        List<Item> items = List.of(item);
+        Mockito.when(itemRepository.search(text)).thenReturn(items);
+        List<ItemDto> itemsResult = items.stream()
+                .filter(Item::getAvailable)
+                .map(itemMapper::toItemDto)
+                .collect(Collectors.toList());
+        List<ItemDto> result = itemService.findItems(text);
+        Assertions.assertEquals(itemsResult, result);
+    }
 
-//    @Test
-//    public void addCommentTest() {
-//        User user2 = User.builder()
-//                .id(2L)
-//                .name("Иван")
-//                .email("nik1@mail.ru")
-//                .build();
-//
-//        Booking booking = new Booking();
-//        booking.setId(1L);
-//        booking.setStart(LocalDateTime.of(2023, Month.APRIL, 8, 12, 30));
-//        booking.setEnd(LocalDateTime.of(2023, Month.APRIL, 10, 12, 30));
-//        booking.setItem(item);
-//        booking.setBooker(user2);
-//        booking.setStatus(BookingStatus.APPROVED);
-//
-//        CommentDto commentDto = CommentDto.builder()
-//                .text("comment1")
-//                .build();
-//
-//        Comments comments1 = Comments.builder()
-//                .id(1L)
-//                .author(user2)
-//                .text("comment1")
-//                .item(item)
-//                .created(LocalDateTime.now())
-//                .build();
-//
-//        Mockito.when(bookingRepository.findByBookerIdAndItemId(2L, 1L)).thenReturn(List.of(booking));
-//
-//        Mockito.when(userRepository.getReferenceById(2L)).thenReturn(user);
-//        Mockito.when(itemRepository.getReferenceById(1L)).thenReturn(item);
-//
-//        Comments comments = new Comments();
-//        when(itemMapper.toComment(commentDto, user, item)).thenReturn(comments);
-//
-//        Mockito.when(commentRepository.save(comments)).thenReturn(comments1);
-//
-//        Comments result = itemService.addComment(2L, 1L, commentDto);
-//        Assertions.assertEquals(result, comments1);
-//    }
-//
-//    @Test
-//    public void addCommentTextIsBlankTest() {
-//        CommentDto commentDto = new CommentDto();
-//        commentDto.setId(1L);
-//        commentDto.setText("");
-//        ValidException exception = Assertions.assertThrows(
-//                ValidException.class,
-//                () -> itemService.addComment(user.getId(), item.getId(), commentDto));
-//        Assertions.assertEquals("This field can't be empty, write the text", exception.getMessage());
-//    }
-//
-//    @Test
-//    public void addCommentBookingsItemByUserIsEmptyTest() {
-//        CommentDto commentDto = new CommentDto();
-//        commentDto.setId(1L);
-//        commentDto.setText("xfdbxdgn");
-//        Mockito.when(bookingRepository.findByBookerIdAndItemId(user.getId(), item.getId())).thenReturn(Collections.emptyList());
-//        ObjectNotFoundException exception = Assertions.assertThrows(
-//                ObjectNotFoundException.class,
-//                () -> itemService.addComment(user.getId(), item.getId(), commentDto));
-//        Assertions.assertEquals("You can't write the comment, because you didn't booking this item", exception.getMessage());
-//    }
-//
-//    @Test
-//    public void addCommentBookingsEndsBeforeNowTest() {
-//        CommentDto commentDto = new CommentDto();
-//        commentDto.setId(1L);
-//        commentDto.setText("xfdbxdgn");
-//        Booking booking = new Booking(1L, LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(3), item, user, BookingStatus.APPROVED);
-//        Mockito.when(bookingRepository.findByBookerIdAndItemId(user.getId(), item.getId())).thenReturn(List.of(booking));
-//        ValidException exception = Assertions.assertThrows(
-//                ValidException.class,
-//                () -> itemService.addComment(user.getId(), item.getId(), commentDto));
-//        Assertions.assertEquals("You can't comment, because you didn't use this item", exception.getMessage());
-//    }
-//
-//    @Test
-//    public void itemMapperToItemDtoTest() {
-//        ItemMapper itemMapper1 = new ItemMapper();
-//        ItemDto result = itemMapper1.toItemDto(item);
-//        Assertions.assertEquals(result.getId(), itemDtoMapper.getId());
-//        Assertions.assertEquals(result.getName(), itemDtoMapper.getName());
-//        Assertions.assertEquals(result.getDescription(), itemDtoMapper.getDescription());
-//        Assertions.assertEquals(result.getAvailable(), itemDtoMapper.getAvailable());
-//        Assertions.assertEquals(result.getRequestId(), itemDtoMapper.getRequestId());
-//    }
-//
-//    @Test
-//    public void toItemTest() {
-//        ItemMapper itemMapper1 = new ItemMapper();
-//        Item result = itemMapper1.toItem(itemDtoMapper, user, null);
-//        Assertions.assertEquals(result.getId(), item.getId());
-//        Assertions.assertEquals(result.getName(), item.getName());
-//        Assertions.assertEquals(result.getDescription(), item.getDescription());
-//        Assertions.assertEquals(result.getAvailable(), item.getAvailable());
-//        Assertions.assertEquals(result.getRequest(), item.getRequest());
-//    }
+
+    @Test
+    public void findItemsTextIsBlankTest() {
+        List<ItemDto> items = itemService.findItems("");
+        Assertions.assertEquals(items, Collections.emptyList());
+    }
+
+    @Test
+    public void addCommentTest() {
+        User user2 = User.builder()
+                .id(2L)
+                .name("Иван")
+                .email("nik1@mail.ru")
+                .build();
+
+        Booking booking = new Booking();
+        booking.setId(1L);
+        booking.setStart(LocalDateTime.of(2023, Month.APRIL, 8, 12, 30));
+        booking.setEnd(LocalDateTime.of(2023, Month.APRIL, 10, 12, 30));
+        booking.setItem(item);
+        booking.setBooker(user2);
+        booking.setStatus(BookingStatus.APPROVED);
+
+        CommentDto commentDto = CommentDto.builder()
+                .text("comment1")
+                .build();
+
+        Comments comments1 = Comments.builder()
+                .id(1L)
+                .author(user2)
+                .text("comment1")
+                .item(item)
+                .created(LocalDateTime.now())
+                .build();
+
+        Mockito.when(bookingRepository.findByBookerIdAndItemId(2L, 1L)).thenReturn(List.of(booking));
+
+        Mockito.when(userRepository.getReferenceById(2L)).thenReturn(user);
+        Mockito.when(itemRepository.getReferenceById(1L)).thenReturn(item);
+
+        Mockito.when(commentRepository.save(Mockito.any())).thenReturn(comments1);
+
+        CommentDto newComment = itemMapper1.toCommentDto(comments1);
+        Mockito.when(itemMapper.toCommentDto(comments1)).thenReturn(newComment);
+
+        CommentDto result = itemService.addComment(2L, 1L, commentDto);
+        Assertions.assertEquals(commentDto.getText(), result.getText());
+    }
+
+    @Test
+    public void addCommentTextIsBlankTest() {
+        CommentDto commentDto = new CommentDto();
+        commentDto.setId(1L);
+        commentDto.setText("");
+        ValidException exception = Assertions.assertThrows(
+                ValidException.class,
+                () -> itemService.addComment(user.getId(), item.getId(), commentDto));
+        Assertions.assertEquals("This field can't be empty, write the text", exception.getMessage());
+    }
+
+    @Test
+    public void addCommentBookingsItemByUserIsEmptyTest() {
+        CommentDto commentDto = new CommentDto();
+        commentDto.setId(1L);
+        commentDto.setText("xfdbxdgn");
+        Mockito.when(bookingRepository.findByBookerIdAndItemId(user.getId(), item.getId())).thenReturn(Collections.emptyList());
+        ObjectNotFoundException exception = Assertions.assertThrows(
+                ObjectNotFoundException.class,
+                () -> itemService.addComment(user.getId(), item.getId(), commentDto));
+        Assertions.assertEquals("You can't write the comment, because you didn't booking this item", exception.getMessage());
+    }
+
+    @Test
+    public void addCommentBookingsEndsBeforeNowTest() {
+        CommentDto commentDto = new CommentDto();
+        commentDto.setId(1L);
+        commentDto.setText("xfdbxdgn");
+        Booking booking = new Booking(1L, LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(3), item, user, BookingStatus.APPROVED);
+        Mockito.when(bookingRepository.findByBookerIdAndItemId(user.getId(), item.getId())).thenReturn(List.of(booking));
+        ValidException exception = Assertions.assertThrows(
+                ValidException.class,
+                () -> itemService.addComment(user.getId(), item.getId(), commentDto));
+        Assertions.assertEquals("You can't comment, because you didn't use this item", exception.getMessage());
+    }
+
+    @Test
+    public void itemMapperToItemDtoTest() {
+        ItemMapper itemMapper1 = new ItemMapper();
+        ItemDto result = itemMapper1.toItemDto(item);
+        Assertions.assertEquals(result.getId(), itemDtoMapper.getId());
+        Assertions.assertEquals(result.getName(), itemDtoMapper.getName());
+        Assertions.assertEquals(result.getDescription(), itemDtoMapper.getDescription());
+        Assertions.assertEquals(result.getAvailable(), itemDtoMapper.getAvailable());
+        Assertions.assertEquals(result.getRequestId(), itemDtoMapper.getRequestId());
+    }
 
     @Test
     public void toCommentDtoTest() {
@@ -407,17 +394,17 @@ public class ItemServiceTest {
         Assertions.assertEquals(result.getCreated(), comments.getCreated());
     }
 
-//    @Test
-//    public void toCommentTest() {
-//        ItemMapper itemMapper1 = new ItemMapper();
-//        CommentDto inputCommentDto = new CommentDto(1L, "comment1", 1L, "name", LocalDateTime.now());
-//        Comments result = itemMapper1.toComment(inputCommentDto, user, item);
-//        Assertions.assertEquals(result.getId(), inputCommentDto.getId());
-//        Assertions.assertEquals(result.getText(), inputCommentDto.getText());
-//        Assertions.assertEquals(result.getItem(), item);
-//        Assertions.assertEquals(result.getAuthor().getId(), inputCommentDto.getAuthor());
-//        Assertions.assertEquals(result.getCreated().getDayOfMonth(), LocalDateTime.now().getDayOfMonth());
-//    }
+    @Test
+    public void toCommentTest() {
+        ItemMapper itemMapper1 = new ItemMapper();
+        CommentDto inputCommentDto = new CommentDto(1L, "comment1", 1L, "name", LocalDateTime.now());
+        Comments result = itemMapper1.toComment(inputCommentDto, user, item);
+        Assertions.assertEquals(result.getId(), inputCommentDto.getId());
+        Assertions.assertEquals(result.getText(), inputCommentDto.getText());
+        Assertions.assertEquals(result.getItem(), item);
+        Assertions.assertEquals(result.getAuthor().getId(), inputCommentDto.getAuthor());
+        Assertions.assertEquals(result.getCreated().getDayOfMonth(), LocalDateTime.now().getDayOfMonth());
+    }
 
 
 }

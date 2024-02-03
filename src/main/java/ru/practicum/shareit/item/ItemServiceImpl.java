@@ -91,41 +91,41 @@ public class ItemServiceImpl implements ItemService {
         return itemMapper.toItemDto(itemRepository.save(item));
     }
 
-    @Override
-    public ItemDto update(Long userId, ItemDto itemDto, Long itemId) {
-        Objects.requireNonNull(userId, "userId must not be null");
-        Objects.requireNonNull(itemDto, "itemDto must not be null");
-        Objects.requireNonNull(itemId, "itemId must not be null");
+        @Override
+        public ItemDto update(Long userId, ItemDto itemDto, Long itemId) {
+            Objects.requireNonNull(userId, "userId must not be null");
+            Objects.requireNonNull(itemDto, "itemDto must not be null");
+            Objects.requireNonNull(itemId, "itemId must not be null");
 
-        ItemRequest itemRequest = itemRequestService.findRequestByIdUtil(itemDto.getRequestId(), userId);
-        UserDto userDto = userService.getById(userId);
-        Item item = itemMapper.toItem(itemDto, itemRequest, userDto);
+            ItemRequest itemRequest = itemRequestService.findRequestByIdUtil(itemDto.getRequestId(), userId);
+            UserDto userDto = userService.getById(userId);
+            Item item = itemMapper.toItem(itemDto, itemRequest, userDto);
 
-        checkUser(userId);
+            checkUser(userId);
 
-        if (!itemRepository.existsById(itemId)) {
-            throw new ObjectNotFoundException("This item not found");
+            if (!itemRepository.existsById(itemId)) {
+                throw new ObjectNotFoundException("This item not found");
+            }
+
+            Item savedItem = itemRepository.findById(itemId).orElseThrow(() -> new ObjectNotFoundException("Item not found"));
+            if (!savedItem.getOwner().getId().equals(userId)) {
+                throw new ObjectNotFoundException("Items can only be changed by owners");
+            }
+
+            if (item.getAvailable() != null) {
+                savedItem.setAvailable(item.getAvailable());
+            }
+
+            if (item.getName() != null) {
+                savedItem.setName(item.getName());
+            }
+
+            if (item.getDescription() != null) {
+                savedItem.setDescription(item.getDescription());
+            }
+
+            return itemMapper.toItemDto(itemRepository.save(savedItem));
         }
-
-        Item savedItem = itemRepository.findById(itemId).orElseThrow(() -> new ObjectNotFoundException("Item not found"));
-        if (!savedItem.getOwner().getId().equals(userId)) {
-            throw new ObjectNotFoundException("Items can only be changed by owners");
-        }
-
-        if (item.getAvailable() != null) {
-            savedItem.setAvailable(item.getAvailable());
-        }
-
-        if (item.getName() != null) {
-            savedItem.setName(item.getName());
-        }
-
-        if (item.getDescription() != null) {
-            savedItem.setDescription(item.getDescription());
-        }
-
-        return itemMapper.toItemDto(itemRepository.save(savedItem));
-    }
 
     @Override
     public ItemDtoForOwners findById(Long itemId, Long userId) {

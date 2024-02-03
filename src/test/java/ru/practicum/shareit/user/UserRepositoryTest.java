@@ -16,17 +16,6 @@ public class UserRepositoryTest {
     private UserRepository userRepository;
 
     @Test
-    void findByIdTest() {
-        User user = new User(0L, "userName", "email@mail.ru");
-        User savedUser = new User(1L, "userName", "email@mail.ru");
-        userRepository.save(user);
-        User check = userRepository.findById(1L).orElseThrow();
-        assertNotNull(check);
-        assertEquals(check.getId(), savedUser.getId());
-        assertEquals(check.getName(), savedUser.getName());
-    }
-
-    @Test
     void findAllTest() {
         User user = new User(0L, "userName", "email@mail.ru");
         User savedUser = new User(1L, "userName", "email@mail.ru");

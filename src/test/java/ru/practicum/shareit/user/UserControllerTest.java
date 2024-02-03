@@ -35,8 +35,6 @@ public class UserControllerTest {
     @Mock
     private UserService userService;
     @Mock
-    private UserMapper userMapper;
-    @Mock
     private UserRepository userRepository;
     @InjectMocks
     private UserController userController;
