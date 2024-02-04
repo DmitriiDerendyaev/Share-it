@@ -209,6 +209,83 @@ public class BookingServiceTest {
     }
 
     @Test
+    public void checkBookNotFoundTest() {
+        when(bookingRepository.existsById(1L)).thenReturn(false);
+        when(bookingRepository.findById(1L)).thenReturn(Optional.of(saveBooking));
+//        when(userRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.getReferenceById(anyLong())).thenReturn(user);
+        when(itemRepository.getReferenceById(anyLong())).thenReturn(item);
+
+        ObjectNotFoundException exception = Assertions.assertThrows(
+                ObjectNotFoundException.class,
+                () -> bookingService.checkRequest(user.getId(), booking.getId(), "true"));
+        Assertions.assertEquals("This booking not found", exception.getMessage());
+    }
+
+    @Test
+    public void checkUserNotFoundTest() {
+        when(bookingRepository.existsById(1L)).thenReturn(true);
+        when(bookingRepository.findById(1L)).thenReturn(Optional.of(saveBooking));
+        when(userRepository.existsById(1L)).thenReturn(false);
+        when(userRepository.getReferenceById(anyLong())).thenReturn(user);
+        when(itemRepository.getReferenceById(anyLong())).thenReturn(item);
+
+        ObjectNotFoundException exception = Assertions.assertThrows(
+                ObjectNotFoundException.class,
+                () -> bookingService.checkRequest(user.getId(), booking.getId(), "true"));
+        Assertions.assertEquals("User not found", exception.getMessage());
+    }
+
+    @Test
+    public void checkOwnerChangeStatusTest() {
+        when(bookingRepository.existsById(1L)).thenReturn(true);
+        when(bookingRepository.findById(1L)).thenReturn(Optional.of(saveBooking));
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.getReferenceById(anyLong())).thenReturn(user);
+        Item anotherOwner = item;
+        anotherOwner.setOwner(User.builder().id(123L).build());
+        when(itemRepository.getReferenceById(anyLong())).thenReturn(anotherOwner);
+
+        ObjectNotFoundException exception = Assertions.assertThrows(
+                ObjectNotFoundException.class,
+                () -> bookingService.checkRequest(user.getId(), booking.getId(), "true"));
+        Assertions.assertEquals("Change status can only owner", exception.getMessage());
+    }
+
+    @Test
+    public void checkBookingStatusTest() {
+        when(bookingRepository.existsById(1L)).thenReturn(true);
+        Booking approvedBooking = saveBooking;
+        saveBooking.setStatus(BookingStatus.APPROVED);
+        when(bookingRepository.findById(1L)).thenReturn(Optional.of(approvedBooking));
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.getReferenceById(anyLong())).thenReturn(user);
+        when(itemRepository.getReferenceById(anyLong())).thenReturn(item);
+
+        ValidException exception = Assertions.assertThrows(
+                ValidException.class,
+                () -> bookingService.checkRequest(user.getId(), booking.getId(), "true"));
+        Assertions.assertEquals("This booking checked", exception.getMessage());
+    }
+
+    @Test
+    public void checkRequestNotApprovedTest() {
+        String approved = "false";
+        when(bookingRepository.existsById(1L)).thenReturn(true);
+        when(bookingRepository.findById(1L)).thenReturn(Optional.of(saveBooking));
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.getReferenceById(anyLong())).thenReturn(user);
+        when(itemRepository.getReferenceById(anyLong())).thenReturn(item);
+
+        Booking result = bookingService.checkRequest(1L, 1L, approved);
+
+        Booking notApprovedBooking = saveBooking;
+        notApprovedBooking.setStatus(BookingStatus.REJECTED);
+        Assertions.assertEquals(notApprovedBooking, result);
+    }
+
+
+    @Test
     public void checkStateTest() {
         User user = new User(1L, "userName", "email@mail.ru");
         Item item = new Item(1L, "itemName", "itemDescription", true, user, null);
