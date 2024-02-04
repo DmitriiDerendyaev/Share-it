@@ -197,6 +197,7 @@ public class ItemServiceTest {
                 () -> itemService.create(user.getId(), itemDtoInput));
         Assertions.assertEquals("User not found", exception.getMessage());
     }
+
     @Test
     public void userUpdateTest() {
         when(itemRequestService.findRequestByIdUtil(itemDtoInput.getRequestId(), 1L)).thenReturn(itemRequest);
