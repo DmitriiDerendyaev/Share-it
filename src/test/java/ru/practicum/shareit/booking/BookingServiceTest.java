@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class BookingServiceTest {
@@ -51,6 +52,9 @@ public class BookingServiceTest {
     Booking saveBooking = new Booking(1L, start, end, item, user2, BookingStatus.WAITING);
     BookingItemDto bookingDto = new BookingItemDto(0L, 1L, LocalDateTime.of(2024, Month.APRIL, 8, 12, 30),
             LocalDateTime.of(2024, Month.APRIL, 12, 12, 30), BookingStatus.WAITING);
+
+    BookingItemDto bookingDtoOutput = new BookingItemDto(1L, 1L, LocalDateTime.of(2024, Month.APRIL, 8, 12, 30),
+            LocalDateTime.of(2024, Month.APRIL, 12, 12, 30), BookingStatus.WAITING);
     BookingItemDto bookingDtoTime = new BookingItemDto(0L, 1L, LocalDateTime.of(2024, Month.APRIL, 8, 12, 30),
             LocalDateTime.of(2023, Month.APRIL, 12, 12, 30), BookingStatus.APPROVED);
     BookingItemDto bookingDtoEqualTime = new BookingItemDto(0L, 1L, LocalDateTime.of(2023, Month.APRIL, 12, 12, 30),
@@ -75,14 +79,14 @@ public class BookingServiceTest {
         baseBooking1.setBooker(user2);
         baseBooking1.setStatus(BookingStatus.WAITING);
 
-        Mockito.when(userRepository.existsById(2L)).thenReturn(true);
+        when(userRepository.existsById(2L)).thenReturn(true);
 
-        Mockito.when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
-        Mockito.when(userRepository.findById(2L)).thenReturn(Optional.of(user2));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user2));
 
-        Mockito.when(itemRepository.getReferenceById(anyLong())).thenReturn(item);
+        when(itemRepository.getReferenceById(anyLong())).thenReturn(item);
 
-        Mockito.when(bookingRepository.save(baseBooking)).thenReturn(baseBooking1);
+        when(bookingRepository.save(baseBooking)).thenReturn(baseBooking1);
 
         Booking result = bookingService.createBooking(2L, bookingDto);
         Assertions.assertEquals(baseBooking1.getId(), result.getId());
@@ -108,7 +112,7 @@ public class BookingServiceTest {
 
     @Test
     public void createBookingNotFoundUserTest() {
-        Mockito.when(userRepository.existsById(user.getId())).thenReturn(false);
+        when(userRepository.existsById(user.getId())).thenReturn(false);
 
         final ObjectNotFoundException exception = Assertions.assertThrows(
                 ObjectNotFoundException.class,
@@ -119,7 +123,7 @@ public class BookingServiceTest {
 
     @Test
     public void createBookingNotExistItemTest() {
-        Mockito.when(userRepository.existsById(user.getId())).thenReturn(true);
+        when(userRepository.existsById(user.getId())).thenReturn(true);
 
         final ObjectNotFoundException exception = Assertions.assertThrows(
                 ObjectNotFoundException.class,
@@ -130,7 +134,7 @@ public class BookingServiceTest {
 
     @Test
     public void createBookingEmptyItemTest() {
-        Mockito.when(itemRepository.findById(item.getId()).isEmpty()).thenThrow(new ObjectNotFoundException("Item not found"));
+        when(itemRepository.findById(item.getId()).isEmpty()).thenThrow(new ObjectNotFoundException("Item not found"));
 
         final ObjectNotFoundException exception = Assertions.assertThrows(
                 ObjectNotFoundException.class,
@@ -141,9 +145,9 @@ public class BookingServiceTest {
 
     @Test
     public void getBookingTest() {
-        Mockito.when(userRepository.existsById(1L)).thenReturn(true);
-        Mockito.when(bookingRepository.existsById(1L)).thenReturn(true);
-        Mockito.when(bookingRepository.findById(1L)).thenReturn(Optional.of(saveBooking));
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(bookingRepository.existsById(1L)).thenReturn(true);
+        when(bookingRepository.findById(1L)).thenReturn(Optional.of(saveBooking));
 
         Booking result = bookingService.getBooking(1L, 1L);
         Assertions.assertEquals(saveBooking, result);
@@ -152,8 +156,8 @@ public class BookingServiceTest {
     @Test
     public void getBookingsByStatusTest() {
         List<Booking> bookingsByUserId = new ArrayList<>();
-        Mockito.when(userRepository.existsById(1L)).thenReturn(true);
-        Mockito.when(bookingRepository.findByBookerId(1L, PageRequest.of(0, 1,
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(bookingRepository.findByBookerId(1L, PageRequest.of(0, 1,
                 Sort.by("start").descending()))).thenReturn(bookingsByUserId);
 
         List<Booking> allBookings = bookingService.checkState(bookingsByUserId, "ALL");
@@ -168,11 +172,11 @@ public class BookingServiceTest {
     public void getUserBookingsTest() {
         List<Item> itemByOwnerId = List.of(item, item1);
 
-        Mockito.when(itemRepository.findByOwnerId(1L)).thenReturn(itemByOwnerId);
+        when(itemRepository.findByOwnerId(1L)).thenReturn(itemByOwnerId);
         List<Booking> saveBooking = new ArrayList<>();
         List<Long> allItemsByUser = List.of(1L, 2L);
 
-        Mockito.when(bookingRepository.findByItemIdIn(allItemsByUser, PageRequest.of(0, 1,
+        when(bookingRepository.findByItemIdIn(allItemsByUser, PageRequest.of(0, 1,
                 Sort.by("start").descending()))).thenReturn(saveBooking);
 
         List<Booking> allBooking = bookingService.checkState(saveBooking, "ALL");
@@ -208,4 +212,16 @@ public class BookingServiceTest {
         List<Booking> resultREJECTED = bookingService.checkState(allBooking, "REJECTED");
         Assertions.assertEquals(resultREJECTED.get(0).getId(), bookingREJECTED.getId());
     }
+
+    @Test
+    public void toBookingTest() {
+        when(bookingMapper.toBooking(bookingDto, user, item)).thenReturn(booking);
+
+        Booking bookingResult = bookingMapper.toBooking(bookingDto, user, item);
+
+        Assertions.assertEquals(bookingDtoOutput.getId(), bookingResult.getId());
+        Assertions.assertEquals(bookingDtoOutput.getItemId(), bookingResult.getItem().getId());
+    }
+
+
 }

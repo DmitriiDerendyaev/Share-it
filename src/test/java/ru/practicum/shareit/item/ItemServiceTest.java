@@ -183,6 +183,21 @@ public class ItemServiceTest {
             .build();
 
     @Test
+    public void createWithNotNullIdTest() {
+        ObjectNotFoundException exception = Assertions.assertThrows(
+                ObjectNotFoundException.class,
+                () -> itemService.create(user.getId(), itemDto2));
+        Assertions.assertEquals("User not found", exception.getMessage());
+    }
+
+    @Test
+    public void createWithNotExistUserTest() {
+        ObjectNotFoundException exception = Assertions.assertThrows(
+                ObjectNotFoundException.class,
+                () -> itemService.create(user.getId(), itemDtoInput));
+        Assertions.assertEquals("User not found", exception.getMessage());
+    }
+    @Test
     public void userUpdateTest() {
         when(itemRequestService.findRequestByIdUtil(itemDtoInput.getRequestId(), 1L)).thenReturn(itemRequest);
         when(userService.getById(1L)).thenReturn(userDto);
@@ -208,6 +223,14 @@ public class ItemServiceTest {
                 ObjectNotFoundException.class,
                 () -> itemService.update(user.getId(), itemDtoInput, item.getId()));
         Assertions.assertEquals("This item not found", exception.getMessage());
+    }
+
+    @Test
+    public void userIdCanNotBeEmptyTest() {
+        ValidException exception = Assertions.assertThrows(
+                ValidException.class,
+                () -> itemService.update(0L, itemDtoInput, item.getId()));
+        Assertions.assertEquals("User id can't be empty", exception.getMessage());
     }
 
     @Test
