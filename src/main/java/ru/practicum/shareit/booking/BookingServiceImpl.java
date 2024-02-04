@@ -83,13 +83,14 @@ public class BookingServiceImpl implements BookingService {
         Objects.requireNonNull(bookingId, "bookingId must not be null");
         Objects.requireNonNull(approved, "approved must not be null");
 
+        if (!approved.equals("true") && !approved.equals("false")) {
+            throw new ValidException("approved must be true/false");
+        }
+
         Booking saveBooking = bookingRepository.findById(bookingId).orElseThrow();
         saveBooking.setBooker(userRepository.getReferenceById(saveBooking.getBooker().getId()));
         saveBooking.setItem(itemRepository.getReferenceById(saveBooking.getItem().getId()));
 
-        if (approved.isBlank()) {
-            throw new ValidException("approved must be true/false");
-        }
 
         if (!bookingRepository.existsById(bookingId)) {
             throw new ObjectNotFoundException("This booking not found");

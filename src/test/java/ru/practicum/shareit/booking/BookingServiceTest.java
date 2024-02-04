@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -183,6 +184,29 @@ public class BookingServiceTest {
                 Sort.by("start").descending()));
 
         Assertions.assertEquals(allBooking, result);
+    }
+
+    @Test
+    public void checkRequestTest() {
+        String approved = "true";
+        when(bookingRepository.existsById(1L)).thenReturn(true);
+        when(bookingRepository.findById(1L)).thenReturn(Optional.of(saveBooking));
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.getReferenceById(anyLong())).thenReturn(user);
+        when(itemRepository.getReferenceById(anyLong())).thenReturn(item);
+
+        Booking result = bookingService.checkRequest(1L, 1L, approved);
+
+        Assertions.assertEquals(saveBooking, result);
+    }
+
+    @Test
+    public void checkRequestApprovedIsBlankTest() {
+        String approved = "";
+        ValidException exception = Assertions.assertThrows(
+                ValidException.class,
+                () -> bookingService.checkRequest(user.getId(), booking.getId(), approved));
+        Assertions.assertEquals("approved must be true/false", exception.getMessage());
     }
 
     @Test
