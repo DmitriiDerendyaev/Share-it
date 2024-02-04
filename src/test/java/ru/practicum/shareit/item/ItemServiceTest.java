@@ -103,8 +103,8 @@ public class ItemServiceTest {
                 .build();
 
         Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        Mockito.when(userMapper.toDto(user)).thenReturn(userDto);
         Mockito.when(itemMapper.toItem(itemDto, null, userDto)).thenReturn(item);
+        Mockito.when(userMapper.toDto(user)).thenReturn(userDto);
         Mockito.when(itemMapper.toItemDto(Mockito.any())).thenReturn(itemDto);
         Mockito.when(userRepository.existsById(userId)).thenReturn(true);
 
@@ -133,6 +133,42 @@ public class ItemServiceTest {
             .available(true)
             .owner(user)
             .request(null)
+            .build();
+
+    Item itemNullAvailable = Item.builder()
+            .id(1L)
+            .name("item")
+            .description("description item")
+            .available(null)
+            .owner(user)
+            .request(null)
+            .build();
+
+    Item itemNullName = Item.builder()
+            .id(1L)
+            .name("")
+            .description("description item")
+            .available(true)
+            .owner(user)
+            .request(null)
+            .build();
+
+    Item itemBlankDescription = Item.builder()
+            .id(1L)
+            .name("some")
+            .description(null)
+            .available(true)
+            .owner(user)
+            .request(null)
+            .build();
+
+    Item itemWithRequest = Item.builder()
+            .id(1L)
+            .name("item")
+            .description("description item")
+            .available(true)
+            .owner(user)
+            .request(ItemRequest.builder().id(1L).build())
             .build();
 
     Item itemExtra = Item.builder()
@@ -169,6 +205,14 @@ public class ItemServiceTest {
             .requestId(1L)
             .build();
 
+    ItemDto itemDtoInputNotAvailable = ItemDto.builder()
+            .id(0L)
+            .name("item")
+            .description("description item")
+            .available(null)
+            .requestId(1L)
+            .build();
+
     User user2 = User.builder()
             .id(2L)
             .name("Нико")
@@ -188,6 +232,51 @@ public class ItemServiceTest {
                 ObjectNotFoundException.class,
                 () -> itemService.create(user.getId(), itemDto2));
         Assertions.assertEquals("User not found", exception.getMessage());
+    }
+
+    @Test
+    public void createWithAvailableIsNullTest() {
+        Mockito.when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        Mockito.when(itemMapper.toItem(itemDtoInputNotAvailable, null, userDto)).thenReturn(itemNullAvailable);
+        Mockito.when(userMapper.toDto(user)).thenReturn(userDto);
+        ValidException exception = Assertions.assertThrows(
+                ValidException.class,
+                () -> itemService.create(user.getId(), itemDtoInputNotAvailable));
+        Assertions.assertEquals("Available can't be empty", exception.getMessage());
+    }
+
+    @Test
+    public void createWithNameIsBlankTest() {
+        Mockito.when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        Mockito.when(itemMapper.toItem(itemDtoInput, null, userDto)).thenReturn(itemNullName);
+        Mockito.when(userMapper.toDto(user)).thenReturn(userDto);
+        ValidException exception = Assertions.assertThrows(
+                ValidException.class,
+                () -> itemService.create(user.getId(), itemDtoInput));
+        Assertions.assertEquals("Name can't be empty", exception.getMessage());
+    }
+
+    @Test
+    public void createWithDescriptionIsNullTest() {
+        Mockito.when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        Mockito.when(itemMapper.toItem(itemDtoInput, null, userDto)).thenReturn(itemBlankDescription);
+        Mockito.when(userMapper.toDto(user)).thenReturn(userDto);
+        ValidException exception = Assertions.assertThrows(
+                ValidException.class,
+                () -> itemService.create(user.getId(), itemDtoInput));
+        Assertions.assertEquals("Description can't be empty", exception.getMessage());
+    }
+
+    @Test
+    public void createWithUserNotExistTest() {
+        Mockito.when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        Mockito.when(itemMapper.toItem(itemDtoInput, null, userDto)).thenReturn(item);
+        Mockito.when(userMapper.toDto(user)).thenReturn(userDto);
+        Mockito.when(userRepository.existsById(anyLong())).thenReturn(false);
+        ObjectNotFoundException exception = Assertions.assertThrows(
+                ObjectNotFoundException.class,
+                () -> itemService.create(user.getId(), itemDtoInput));
+        Assertions.assertEquals("This user is not exist", exception.getMessage());
     }
 
     @Test
@@ -403,6 +492,62 @@ public class ItemServiceTest {
         Assertions.assertEquals(result.getDescription(), itemDtoMapper.getDescription());
         Assertions.assertEquals(result.getAvailable(), itemDtoMapper.getAvailable());
         Assertions.assertEquals(result.getRequestId(), itemDtoMapper.getRequestId());
+    }
+
+    @Test
+    public void toItemTest() {
+        ItemMapper itemMapper1 = new ItemMapper();
+        Item result = itemMapper1.toItem(itemDtoMapper, itemRequest, null);
+        Assertions.assertEquals(result.getId(), itemWithRequest.getId());
+        Assertions.assertEquals(result.getName(), itemWithRequest.getName());
+        Assertions.assertEquals(result.getDescription(), itemWithRequest.getDescription());
+        Assertions.assertEquals(result.getAvailable(), itemWithRequest.getAvailable());
+        Assertions.assertEquals(result.getRequest().getId(), itemWithRequest.getRequest().getId());
+    }
+
+    @Test
+    void toItemDtoForOwnersTest() {
+        Booking lastBooking = Booking.builder()
+                .id(1L)
+                .start(LocalDateTime.of(2024, 1, 1, 10, 0))
+                .end(LocalDateTime.of(2024, 1, 2, 10, 0))
+                .booker(User.builder().id(2L).build())
+                .build();
+
+        Booking nextBooking = Booking.builder()
+                .id(2L)
+                .start(LocalDateTime.of(2024, 2, 1, 10, 0))
+                .end(LocalDateTime.of(2024, 2, 2, 10, 0))
+                .booker(User.builder().id(3L).build())
+                .build();
+
+        List<CommentDto> comments = new ArrayList<>();
+
+        ItemDtoForOwners result = itemMapper1.toItemDtoForOwners(item, 1L, lastBooking, nextBooking, comments);
+
+        Assertions.assertEquals(item.getId(), result.getId());
+        Assertions.assertEquals(item.getName(), result.getName());
+        Assertions.assertEquals(item.getDescription(), result.getDescription());
+        Assertions.assertEquals(0, result.getRequest());
+        if (lastBooking != null && item.getOwner().getId() == 1L) {
+            Assertions.assertNotNull(result.getLastBooking());
+            Assertions.assertEquals(lastBooking.getId(), result.getLastBooking().getId());
+            Assertions.assertEquals(lastBooking.getStart(), result.getLastBooking().getStart());
+            Assertions.assertEquals(lastBooking.getEnd(), result.getLastBooking().getEnd());
+            Assertions.assertEquals(lastBooking.getBooker().getId(), result.getLastBooking().getBookerId());
+        } else {
+            Assertions.assertNull(result.getLastBooking());
+        }
+        if (nextBooking != null && item.getOwner().getId() == 1L) {
+            Assertions.assertNotNull(result.getNextBooking());
+            Assertions.assertEquals(nextBooking.getId(), result.getNextBooking().getId());
+            Assertions.assertEquals(nextBooking.getStart(), result.getNextBooking().getStart());
+            Assertions.assertEquals(nextBooking.getEnd(), result.getNextBooking().getEnd());
+            Assertions.assertEquals(nextBooking.getBooker().getId(), result.getNextBooking().getBookerId());
+        } else {
+            Assertions.assertNull(result.getNextBooking());
+        }
+        Assertions.assertEquals(comments, result.getComments());
     }
 
     @Test
