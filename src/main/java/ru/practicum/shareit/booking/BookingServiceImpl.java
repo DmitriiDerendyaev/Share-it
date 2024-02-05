@@ -13,6 +13,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -184,50 +185,72 @@ public class BookingServiceImpl implements BookingService {
         Objects.requireNonNull(saveBooking, "saveBooking must not be null");
         Objects.requireNonNull(state, "state must not be null");
 
-        switch (state) {
-            case "ALL":
+        BookingStatus status = convertToBookingStatus(state);
+
+        switch (status) {
+            case ALL:
                 log.info("Get list by status ALL");
                 return saveBooking.stream()
-                        .sorted((Comparator.comparing(Booking::getStart)).reversed())
+                        .sorted(Comparator.comparing(Booking::getStart).reversed())
                         .collect(Collectors.toList());
 
-            case "CURRENT":
+            case CURRENT:
                 log.info("Get list by status CURRENT");
                 return saveBooking.stream()
                         .filter(x -> x.getEnd().isAfter(LocalDateTime.now()) && x.getStart().isBefore(LocalDateTime.now()))
-                        .sorted((Comparator.comparing(Booking::getStart)).reversed())
+                        .sorted(Comparator.comparing(Booking::getStart).reversed())
                         .collect(Collectors.toList());
 
-            case "PAST":
+            case PAST:
                 log.info("Get list by status PAST");
                 return saveBooking.stream()
                         .filter(x -> x.getEnd().isBefore(LocalDateTime.now()))
-                        .sorted((Comparator.comparing(Booking::getStart)).reversed())
+                        .sorted(Comparator.comparing(Booking::getStart).reversed())
                         .collect(Collectors.toList());
 
-            case "FUTURE":
+            case FUTURE:
                 log.info("Get list by status FUTURE");
                 return saveBooking.stream()
                         .filter(x -> x.getStart().isAfter(LocalDateTime.now()))
-                        .sorted((Comparator.comparing(Booking::getStart)).reversed())
+                        .sorted(Comparator.comparing(Booking::getStart).reversed())
                         .collect(Collectors.toList());
 
-            case "WAITING":
+            case WAITING:
                 log.info("Get list by status WAITING");
                 return saveBooking.stream()
                         .filter(x -> x.getStatus().equals(BookingStatus.WAITING))
-                        .sorted((Comparator.comparing(Booking::getStart)).reversed())
+                        .sorted(Comparator.comparing(Booking::getStart).reversed())
                         .collect(Collectors.toList());
 
-            case "REJECTED":
+            case REJECTED:
                 log.info("Get list by status REJECTED");
                 return saveBooking.stream()
                         .filter(x -> x.getStatus().equals(BookingStatus.REJECTED))
-                        .sorted((Comparator.comparing(Booking::getStart)).reversed())
+                        .sorted(Comparator.comparing(Booking::getStart).reversed())
                         .collect(Collectors.toList());
 
             default:
-                throw new ValidException("Unknown state: UNSUPPORTED_STATUS");
+                throw new ValidException("Unknown state: " + status);
         }
     }
+
+    private BookingStatus convertToBookingStatus(String state) {
+        switch (state.toUpperCase()) {
+            case "ALL":
+                return BookingStatus.ALL;
+            case "CURRENT":
+                return BookingStatus.CURRENT;
+            case "PAST":
+                return BookingStatus.PAST;
+            case "FUTURE":
+                return BookingStatus.FUTURE;
+            case "WAITING":
+                return BookingStatus.WAITING;
+            case "REJECTED":
+                return BookingStatus.REJECTED;
+            default:
+                throw new ValidException("Unknown state: " + state);
+        }
+    }
+    // Можно было изменить ENUM, добавив консуктор и строку для дальнейшего сравнения с передаваемой стокой по значению
 }
