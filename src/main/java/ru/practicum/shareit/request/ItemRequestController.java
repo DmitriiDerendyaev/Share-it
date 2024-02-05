@@ -23,17 +23,17 @@ import java.util.List;
 @Validated
 public class ItemRequestController {
 
-    private final String userIDHead = "X-Sharer-User-Id";
+    private final String USER_ID_HEADER  = "X-Sharer-User-Id";
     private final ItemRequestService itemRequestService;
 
     @GetMapping()
-    public List<ItemRequestDto> getRequest(@RequestHeader(userIDHead) Long userId) {
+    public List<ItemRequestDto> getRequest(@RequestHeader(USER_ID_HEADER) Long userId) {
 
         return itemRequestService.getRequest(userId);
     }
 
     @GetMapping("/all")
-    public List<ItemRequestDto> getAllRequests(@RequestHeader(userIDHead) Long userId,
+    public List<ItemRequestDto> getAllRequests(@RequestHeader(USER_ID_HEADER) Long userId,
                                                @RequestParam(defaultValue = "0") @Min(0) Integer from,
                                                @RequestParam(defaultValue = "10") @Min(1) Integer size) {
 
@@ -41,12 +41,12 @@ public class ItemRequestController {
     }
 
     @GetMapping("/{requestId}")
-    public ItemRequestDto findRequestById(@RequestHeader(userIDHead) Long userId, @PathVariable Long requestId) {
+    public ItemRequestDto findRequestById(@RequestHeader(USER_ID_HEADER) Long userId, @PathVariable Long requestId) {
         return itemRequestService.findRequestById(userId, requestId);
     }
 
     @PostMapping
-    public ItemRequest addRequest(@RequestHeader(userIDHead) Long userId, @RequestBody @Valid ItemRequestDto itemRequestDto) {
+    public ItemRequest addRequest(@RequestHeader(USER_ID_HEADER) Long userId, @RequestBody @Valid ItemRequestDto itemRequestDto) {
         return itemRequestService.addRequest(userId, itemRequestDto);
     }
 }
