@@ -172,6 +172,7 @@ public class ItemServiceImpl implements ItemService {
 
         return itemRepository.findByOwnerId(userId).stream()
                 .map(x -> findById(x.getId(), userId))
+                .sorted(Comparator.comparing(ItemDtoForOwners::getId))
                 .collect(Collectors.toList());
     }
 
