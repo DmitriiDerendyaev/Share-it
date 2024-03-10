@@ -166,7 +166,7 @@ public class BookingServiceImpl implements BookingService {
         Objects.requireNonNull(state, "state must not be null");
         Objects.requireNonNull(pageable, "pageable must not be null");
 
-        List<Item> itemByOwnerId = itemRepository.findByOwnerId(ownerId);
+        List<Item> itemByOwnerId = itemRepository.findByOwnerId(ownerId, null);
 
         if (itemByOwnerId.isEmpty()) {
             throw new ObjectNotFoundException("This owner haven't any item");

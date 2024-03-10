@@ -9,6 +9,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -147,7 +149,7 @@ public class ItemControllerTest {
     @Test
     public void getItemsByUserId() throws Exception {
         List<ItemDtoForOwners> allItemsDto = List.of(itemDtoForOwners);
-        Mockito.when(itemService.getItemsByUserId(user.getId())).thenReturn(allItemsDto);
+        Mockito.when(itemService.getItemsByUserId(user.getId(), PageRequest.of(0, 10, Sort.by("id").ascending()))).thenReturn(allItemsDto);
         String itemDtoForOwners = createItemForOunersJson("name", "description", lastBooking, nextBooking, true);
 
         mockMvc.perform(get("/items")
@@ -169,7 +171,7 @@ public class ItemControllerTest {
     public void findItems() throws Exception {
         String text = "itemName";
         List<ItemDto> items = List.of(itemDto);
-        Mockito.when(itemService.findItems(text)).thenReturn(items);
+        Mockito.when(itemService.findItems(text, PageRequest.of(0, 10))).thenReturn(items);
 
         String allItemDto = createItemDtoJson("itemName", "itemDescription", true);
 

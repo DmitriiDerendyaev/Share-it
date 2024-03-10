@@ -367,12 +367,12 @@ public class ItemServiceTest {
         when(userRepository.existsById(1L)).thenReturn(true);
         when(itemRepository.existsById(1L)).thenReturn(true);
         List<Item> items = List.of(item);
-        Mockito.when(itemRepository.findByOwnerId(1L)).thenReturn(items);
+        Mockito.when(itemRepository.findByOwnerId(1L, null)).thenReturn(items);
         List<ItemDtoForOwners> outputItems = items.stream()
                 .map(x -> itemService.findById(x.getId(), user.getId()))
                 .collect(Collectors.toList());
 
-        List<ItemDtoForOwners> result = itemService.getItemsByUserId(1L);
+        List<ItemDtoForOwners> result = itemService.getItemsByUserId(1L, null);
         Assertions.assertEquals(outputItems, result);
     }
 
@@ -381,7 +381,7 @@ public class ItemServiceTest {
         Mockito.when(userRepository.existsById(anyLong())).thenReturn(false);
         ObjectNotFoundException exception = Assertions.assertThrows(
                 ObjectNotFoundException.class,
-                () -> itemService.getItemsByUserId(user.getId()));
+                () -> itemService.getItemsByUserId(user.getId(), null));
         Assertions.assertEquals("User not found", exception.getMessage());
     }
 
@@ -389,19 +389,19 @@ public class ItemServiceTest {
     public void findItemsTest() {
         String text = "tekst";
         List<Item> items = List.of(item);
-        Mockito.when(itemRepository.search(text)).thenReturn(items);
+        Mockito.when(itemRepository.search(text, null)).thenReturn(items);
         List<ItemDto> itemsResult = items.stream()
                 .filter(Item::getAvailable)
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
-        List<ItemDto> result = itemService.findItems(text);
+        List<ItemDto> result = itemService.findItems(text, null);
         Assertions.assertEquals(itemsResult, result);
     }
 
 
     @Test
     public void findItemsTextIsBlankTest() {
-        List<ItemDto> items = itemService.findItems("");
+        List<ItemDto> items = itemService.findItems("", null);
         Assertions.assertEquals(items, Collections.emptyList());
     }
 

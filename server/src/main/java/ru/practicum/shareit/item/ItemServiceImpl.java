@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -161,7 +162,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDtoForOwners> getItemsByUserId(Long userId) {
+    public List<ItemDtoForOwners> getItemsByUserId(Long userId, Pageable pageable) {
         Objects.requireNonNull(userId, "userId must not be null");
 
         checkUser(userId);
@@ -170,18 +171,18 @@ public class ItemServiceImpl implements ItemService {
             throw new ObjectNotFoundException("User not found");
         }
 
-        return itemRepository.findByOwnerId(userId).stream()
+        return itemRepository.findByOwnerId(userId, pageable).stream()
                 .map(x -> findById(x.getId(), userId))
                 .sorted(Comparator.comparing(ItemDtoForOwners::getId))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ItemDto> findItems(String text) {
+    public List<ItemDto> findItems(String text, Pageable pageable) {
         if (text.isBlank()) {
             return Collections.emptyList();
         }
-        return itemRepository.search(text).stream()
+        return itemRepository.search(text, pageable).stream()
                 .filter(Item::getAvailable)
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());

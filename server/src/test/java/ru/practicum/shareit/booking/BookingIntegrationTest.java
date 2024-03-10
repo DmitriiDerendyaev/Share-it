@@ -85,7 +85,7 @@ public class BookingIntegrationTest {
         bookingRepository.save(baseBooking);
         commentRepository.save(comments);
 
-        List<Item> itemByOwnerId = itemRepository.findByOwnerId(baseUser.getId());
+        List<Item> itemByOwnerId = itemRepository.findByOwnerId(baseUser.getId(), null);
 
         List<Long> allItemsByUser = itemByOwnerId.stream()
                 .map(Item::getId)

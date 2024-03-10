@@ -171,7 +171,7 @@ public class BookingServiceTest {
     public void getUserBookingsTest() {
         List<Item> itemByOwnerId = List.of(item, item1);
 
-        when(itemRepository.findByOwnerId(1L)).thenReturn(itemByOwnerId);
+        when(itemRepository.findByOwnerId(1L, null)).thenReturn(itemByOwnerId);
         List<Booking> saveBooking = new ArrayList<>();
         List<Long> allItemsByUser = List.of(1L, 2L);
 

@@ -91,11 +91,11 @@ public class ItemIntegrationTest {
         comments.setAuthor(baseUser2);
         commentRepository.save(comments);
 
-        List<ItemDtoForOwners> allItems = itemRepository.findByOwnerId(baseUser.getId()).stream()
+        List<ItemDtoForOwners> allItems = itemRepository.findByOwnerId(baseUser.getId(), null).stream()
                 .map(x -> itemService.findById(x.getId(), baseUser.getId()))
                 .collect(Collectors.toList());
 
-        List<ItemDtoForOwners> result = itemService.getItemsByUserId(baseUser.getId());
+        List<ItemDtoForOwners> result = itemService.getItemsByUserId(baseUser.getId(), null);
 
         Assertions.assertEquals(allItems.get(0).getId(), result.get(0).getId());
         Assertions.assertEquals(allItems.get(0).getName(), result.get(0).getName());

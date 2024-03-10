@@ -29,7 +29,7 @@ public class ItemRepositoryTest {
         User user = userRepository.save(user2);
         Item item = new Item(0L, "name", "desc", true, user, null);
         itemRepository.save(item);
-        List<Item> result = itemRepository.search(text);
+        List<Item> result = itemRepository.search(text, null);
 
         assertEquals(result.size(), 1);
         assertEquals(result.get(0).getName(), text);
