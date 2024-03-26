@@ -51,7 +51,7 @@ public class ItemMapper {
                 .build();
     }
 
-    public ItemDtoForOwners toItemDtoForOwners(Item item, long userId, Booking lastBooking, Booking nextBooking, List<CommentDto> comments) {
+    public ItemDtoForOwners toItemDtoForOwners(Item item, Long userId, Booking lastBooking, Booking nextBooking, List<CommentDto> comments) {
 
         return ItemDtoForOwners.builder()
                 .id(item.getId())

@@ -169,7 +169,7 @@ class RequestServiceTest {
     @Test
     public void addRequestUserNotExistTest() {
         ItemDtoForRequest itemDtoForRequest = new ItemDtoForRequest();
-        ItemRequestDto itemRequestDto = new ItemRequestDto(0L, LocalDateTime.now().minusDays(1), "desc", List.of(itemDtoForRequest));
+        ItemRequestDto itemRequestDto = new ItemRequestDto(null, LocalDateTime.now().minusDays(1), "desc", List.of(itemDtoForRequest));
         Mockito.when(userRepository.existsById(user.getId())).thenReturn(false);
         ObjectNotFoundException exception = Assertions.assertThrows(
                 ObjectNotFoundException.class,

@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 public class ItemDtoForOwners {
 
-    private long id;
+    private Long id;
 
     private String name;
 
@@ -23,7 +23,7 @@ public class ItemDtoForOwners {
 
     private Boolean available;
 
-    private long request;
+    private Long request;
 
     private BookingOwnerDto lastBooking;
 

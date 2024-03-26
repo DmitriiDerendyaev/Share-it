@@ -14,12 +14,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class CommentDto {
 
-    private long id;
+    private Long id;
 
     @NotBlank
     private String text;
 
-    private long author;
+    private Long author;
 
     private String authorName;
 

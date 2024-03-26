@@ -132,7 +132,7 @@ public class RequestControllerTest {
                 .andExpect(jsonPath("$[0].description").value(result.get(0).getDescription()));
     }
 
-    public static String createRequestDtoJson(long id, LocalDateTime created, String description) {
+    public static String createRequestDtoJson(Long id, LocalDateTime created, String description) {
         return "{\n" +
                 "    \"id\": \"" + id + "\",\n" +
                 "    \"created\": \"" + created + "\",\n" +

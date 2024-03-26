@@ -51,7 +51,7 @@ public class BookingServiceImpl implements BookingService {
             throw new ObjectNotFoundException("This user is not exist");
         }
 
-        long saveItemId = bookingItemDto.getItemId();
+        Long saveItemId = bookingItemDto.getItemId();
 
         if (itemRepository.findById(saveItemId).isEmpty()) {
             throw new ObjectNotFoundException("Item not found");

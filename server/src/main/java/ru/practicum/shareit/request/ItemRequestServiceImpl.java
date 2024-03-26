@@ -45,7 +45,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public ItemRequest addRequest(Long userId, ItemRequestDto itemRequestDto) {
-        if (itemRequestDto.getId() != 0) {
+        if (itemRequestDto.getId() != null) {
             log.warn("id must be 0");
             throw new ValidException("id must be 0");
         }

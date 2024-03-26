@@ -348,7 +348,7 @@ public class ItemServiceTest {
                 .name("item")
                 .description("description item")
                 .available(true)
-                .request(0)
+                .request(0L)
                 .lastBooking(null)
                 .nextBooking(null)
                 .comments(commentsDto)
