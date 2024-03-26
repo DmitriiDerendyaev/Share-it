@@ -2,26 +2,37 @@ version: '3.8'
 services:
   gateway:
     build:
-    image:
-    container_name:
+      context: ./gateway
+      dockerfile: Dockerfile
+    image: gateway_image
+    container_name: shareit-gateway
     ports:
       - "8080:8080"
     depends_on:
+      - server
     environment:
       - SHAREIT_SERVER_URL=http://server:9090
 
   server:
     build:
-    image:
-    container_name:
+      context: ./server
+      dockerfile: Dockerfile
+    image: server_image
+    container_name: shareit-server
     ports:
+      - "9091:9091"
       - "9090:9090"
     depends_on:
+      - db
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop
 
   db:
     image: postgres:13.7-alpine
+    #    image: postgres:16
     container_name: shareit-db-postgres
     ports:
       - "6541:5432"
