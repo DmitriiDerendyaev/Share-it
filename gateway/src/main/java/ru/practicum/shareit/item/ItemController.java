@@ -60,6 +60,9 @@ public class ItemController {
     @PostMapping("/{itemId}/comment")
     @ResponseBody
     public ResponseEntity<Object> addComment(@RequestHeader(userIDHeader) Long userId, @PathVariable Long itemId, @RequestBody CommentDto commentDto) {
+        if(commentDto.getText().isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
         return itemClient.addComment(userId, itemId, commentDto);
     }
 }
