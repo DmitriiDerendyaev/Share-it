@@ -12,7 +12,6 @@ import ru.practicum.shareit.item.dto.ItemDtoForOwners;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * TODO Sprint add-controllers.
@@ -27,8 +26,6 @@ public class ItemController {
     private final String userIDHeader  = "X-Sharer-User-Id";
 
     private final ItemService itemService;
-
-    private final ItemMapper itemMapper;
 
     @PostMapping
     public ItemDto create(@RequestHeader(userIDHeader) Long userId, @Valid @RequestBody ItemDto itemDto) {
