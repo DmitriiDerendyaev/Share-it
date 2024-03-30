@@ -212,7 +212,6 @@ public class BookingServiceTest {
     public void checkBookNotFoundTest() {
         when(bookingRepository.existsById(1L)).thenReturn(false);
         when(bookingRepository.findById(1L)).thenReturn(Optional.of(saveBooking));
-//        when(userRepository.existsById(1L)).thenReturn(true);
         when(userRepository.getReferenceById(anyLong())).thenReturn(user);
         when(itemRepository.getReferenceById(anyLong())).thenReturn(item);
 

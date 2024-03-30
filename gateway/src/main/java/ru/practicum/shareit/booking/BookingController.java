@@ -26,9 +26,6 @@ public class BookingController {
 	@PostMapping()
 	public ResponseEntity<Object> createBooking(@RequestHeader(userIDHeader) Long userId, @Valid @RequestBody BookingDto bookingItemDto) {
 		log.info("Create booking");
-//		if(bookingItemDto.getEnd().isBefore(bookingItemDto.getStart()) || bookingItemDto.getEnd().isEqual(bookingItemDto.getStart())) {
-//			ResponseEntity.badRequest().build();
-//		}
 		return bookingClient.createBooking(userId, bookingItemDto);
 	}
 

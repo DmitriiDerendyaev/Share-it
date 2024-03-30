@@ -252,5 +252,4 @@ public class BookingServiceImpl implements BookingService {
                 throw new ValidException("Unknown state: " + state);
         }
     }
-    // Можно было изменить ENUM, добавив консуктор и строку для дальнейшего сравнения с передаваемой стокой по значению
 }
