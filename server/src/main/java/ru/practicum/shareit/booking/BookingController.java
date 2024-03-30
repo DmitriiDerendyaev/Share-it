@@ -8,7 +8,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingItemDto;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
 
@@ -26,7 +25,7 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping()
-    public Booking createBooking(@RequestHeader(userIDHeader) Long userId, @Valid @RequestBody BookingItemDto bookingItemDto) {
+    public Booking createBooking(@RequestHeader(userIDHeader) Long userId, @RequestBody BookingItemDto bookingItemDto) {
         log.info("Create booking");
         return bookingService.createBooking(userId, bookingItemDto);
     }
